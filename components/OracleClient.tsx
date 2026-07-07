@@ -144,6 +144,13 @@ export default function OracleClient() {
       };
       const until = Date.now() + COOLDOWN_MS;
 
+      // Phase 2: 예언 분포·적중률 집계에 기록 (실패해도 UI에는 영향 없음)
+      void fetch("/api/stats/record", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ side }),
+      }).catch(() => {});
+
       setResult(res);
       setCooldownUntil(until);
       setNowTs(Date.now());
