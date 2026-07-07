@@ -11,23 +11,23 @@ const FOOTER_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="mt-16 border-t border-slate-800/80 px-4 py-8">
+    <footer className="border-app mt-16 border-t px-4 py-8">
       <div className="mx-auto max-w-3xl space-y-4 text-center">
         <nav aria-label="푸터 메뉴">
-          <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-slate-400">
+          <ul className="txt-muted flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
             {FOOTER_LINKS.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="hover:text-slate-200">
+                <Link href={link.href} className="hover:opacity-80">
                   {link.label}
                 </Link>
               </li>
             ))}
           </ul>
         </nav>
-        <p className="text-[11px] leading-relaxed text-slate-500">
+        <p className="txt-faint text-[11px] leading-relaxed">
           {DISCLAIMER_FOOTER}
         </p>
-        <p className="text-[11px] text-slate-600">
+        <p className="txt-faint text-[11px]">
           © {new Date().getFullYear()} {SITE_NAME} 🐙
         </p>
       </div>

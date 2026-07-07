@@ -18,10 +18,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { side } = await params;
   const isLong = side === "long";
-  const title = isLong ? "문어의 신탁: LONG 📈" : "문어의 신탁: SHORT 📉";
-  const description = `점쟁이 문어가 오늘의 비트코인 점괘로 ${
+  const title = isLong ? "Tako의 예언: LONG 📈" : "Tako의 예언: SHORT 📉";
+  const description = `예언가 문어 Tako가 오늘의 비트코인 예언으로 ${
     isLong ? "롱" : "숏"
-  }을 내렸습니다. 당신의 신탁도 받아보세요. (재미용 오락 콘텐츠)`;
+  }을 내렸어요. 당신의 예언도 받아보세요. (재미로 보는 오락 콘텐츠)`;
   return {
     title,
     description,
@@ -41,38 +41,38 @@ export default async function ResultPage({
 
   return (
     <section className="flex flex-col items-center gap-6 py-16 text-center">
-      <span className="text-7xl" role="img" aria-label="점쟁이 문어">
+      <span className="octo text-7xl" role="img" aria-label="예언가 문어 Tako">
         🐙
       </span>
-      <p className="text-sm text-slate-400">누군가 받아 간 오늘의 신탁</p>
+      <p className="txt-muted text-sm">누군가 받아 간 오늘의 예언</p>
       <div
         className={`w-full max-w-sm rounded-3xl border p-10 ${
           isLong
-            ? "border-emerald-500/40 bg-emerald-950/40"
-            : "border-red-500/40 bg-red-950/40"
+            ? "border-emerald-500/40 bg-emerald-500/10"
+            : "border-red-500/40 bg-red-500/10"
         }`}
       >
         <p
           className={`text-6xl font-black tracking-tight ${
-            isLong ? "text-emerald-400" : "text-red-400"
+            isLong ? "txt-long" : "txt-short"
           }`}
         >
           {isLong ? "LONG" : "SHORT"}
         </p>
-        <p className="mt-4 text-sm text-slate-300">
+        <p className="txt mt-4 text-sm">
           {isLong
-            ? "문어가 위쪽 기류를 감지했다고 합니다."
-            : "문어가 아래쪽 기류를 감지했다고 합니다."}
+            ? "Tako가 위쪽 기류를 감지했다고 하네요."
+            : "Tako가 아래쪽 기류를 감지했다고 하네요."}
         </p>
       </div>
-      <p className="max-w-sm text-[11px] leading-relaxed text-slate-500">
+      <p className="txt-faint max-w-sm text-[11px] leading-relaxed">
         {DISCLAIMER_CARD}
       </p>
       <Link
         href="/"
-        className="rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-10 py-4 text-lg font-bold text-white shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-transform active:scale-95"
+        className="btn-accent rounded-2xl px-10 py-4 text-lg font-bold shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-transform active:scale-95"
       >
-        🔮 나도 신탁 받기
+        🔮 나도 예언 받기
       </Link>
     </section>
   );

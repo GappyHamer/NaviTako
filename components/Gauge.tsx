@@ -1,5 +1,5 @@
 /**
- * 시장온도 페이지용 수평 게이지 (서버 컴포넌트, 순수 CSS).
+ * 시장온도 페이지용 수평 게이지 (순수 CSS, 훅 없음 → 서버·클라이언트 공용).
  * value: 0~100 (%). null이면 데이터 없음 표시.
  */
 
@@ -21,19 +21,25 @@ export default function Gauge({
 
   return (
     <div className="space-y-1.5">
-      <div className="flex justify-between text-[11px] text-slate-500">
+      <div className="txt-faint flex justify-between text-[11px]">
         <span>{leftLabel}</span>
         <span>{rightLabel}</span>
       </div>
-      <div className="relative h-3 overflow-hidden rounded-full bg-slate-800">
+      <div
+        className="relative h-3 overflow-hidden rounded-full"
+        style={{ backgroundColor: "var(--border)" }}
+      >
         {value !== null && (
           <div
-            className={`absolute inset-y-0 left-0 rounded-full ${barClassName}`}
+            className={`absolute inset-y-0 left-0 rounded-full transition-[width] duration-500 ${barClassName}`}
             style={{ width: `${pct}%` }}
           />
         )}
         {/* 중앙 기준선 */}
-        <div className="absolute inset-y-0 left-1/2 w-px bg-slate-600" />
+        <div
+          className="absolute inset-y-0 left-1/2 w-px"
+          style={{ backgroundColor: "var(--fg-faint)" }}
+        />
       </div>
     </div>
   );

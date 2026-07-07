@@ -45,18 +45,18 @@ export default async function GuideArticlePage({
 
   return (
     <div className="space-y-8 py-10">
-      <nav className="text-xs text-slate-500">
-        <Link href="/guide" className="hover:text-slate-300">
+      <nav className="txt-faint text-xs">
+        <Link href="/guide" className="hover:opacity-80">
           ← 가이드 목록으로
         </Link>
       </nav>
 
       <article className="space-y-6">
         <header className="space-y-2">
-          <h1 className="text-2xl font-bold leading-snug text-slate-100">
+          <h1 className="txt-strong text-2xl font-bold leading-snug">
             {article.title}
           </h1>
-          <p className="text-sm text-slate-400">{article.description}</p>
+          <p className="txt-muted text-sm">{article.description}</p>
         </header>
 
         {/* 가이드 글 상단 광고 (스펙 허용 위치) */}
@@ -78,7 +78,7 @@ export default async function GuideArticlePage({
           </>
         )}
 
-        <p className="rounded-xl bg-slate-900 px-4 py-3 text-xs leading-relaxed text-slate-500">
+        <p className="surface txt-faint rounded-xl px-4 py-3 text-xs leading-relaxed">
           {DISCLAIMER_GUIDE}
         </p>
 
@@ -86,11 +86,11 @@ export default async function GuideArticlePage({
         <AdSlot slot="guide-bottom" height={250} />
       </article>
 
-      <nav className="flex flex-col gap-3 border-t border-slate-800 pt-6 sm:flex-row sm:justify-between">
+      <nav className="border-app flex flex-col gap-3 border-t pt-6 sm:flex-row sm:justify-between">
         {prev ? (
           <Link
             href={`/guide/${prev.slug}`}
-            className="text-sm text-violet-400 hover:text-violet-300"
+            className="link-accent text-sm no-underline hover:underline"
           >
             ← {prev.title}
           </Link>
@@ -100,7 +100,7 @@ export default async function GuideArticlePage({
         {next && (
           <Link
             href={`/guide/${next.slug}`}
-            className="text-sm text-violet-400 hover:text-violet-300 sm:text-right"
+            className="link-accent text-sm no-underline hover:underline sm:text-right"
           >
             {next.title} →
           </Link>
