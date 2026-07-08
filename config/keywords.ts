@@ -107,29 +107,30 @@ export const SEED_POOLS: KeywordPools = {
   targets: TARGETS,
 };
 
-function pick<T>(arr: readonly T[], rng: () => number): T {
-  return arr[Math.floor(rng() * arr.length)];
-}
-
 /**
- * 세 키워드 문구 생성. 예: "일론, 강세, 도지".
- * rng 주입으로 테스트 가능. pools 미지정 시 시드 사용.
+ * 세 키워드 문구 생성. 예: "도지, 고래, 떡락".
+ * 카테고리(주체/분위기/대상) 구분 없이 전체 단어를 한 풀로 합쳐, 방향과 무관하게
+ * 서로 다른 3개를 완전 무작위로 뽑는다. rng 주입으로 테스트 가능.
  */
 export function makeKeywordPhrase(
   side: "LONG" | "SHORT",
   pools: KeywordPools = SEED_POOLS,
   rng: () => number = Math.random
 ): string {
-  const subjects = pools.subjects.length ? pools.subjects : SUBJECTS;
-  const sentiment =
-    side === "LONG"
-      ? pools.sentimentLong.length
-        ? pools.sentimentLong
-        : SENTIMENT_LONG
-      : pools.sentimentShort.length
-        ? pools.sentimentShort
-        : SENTIMENT_SHORT;
-  const targets = pools.targets.length ? pools.targets : TARGETS;
+  void side; // 롱/숏 방향과 무관하게 무작위
 
-  return `${pick(subjects, rng)}, ${pick(sentiment, rng)}, ${pick(targets, rng)}`;
+  const merged = [
+    ...(pools.subjects.length ? pools.subjects : SUBJECTS),
+    ...(pools.sentimentLong.length ? pools.sentimentLong : SENTIMENT_LONG),
+    ...(pools.sentimentShort.length ? pools.sentimentShort : SENTIMENT_SHORT),
+    ...(pools.targets.length ? pools.targets : TARGETS),
+  ];
+  const pool = Array.from(new Set(merged));
+
+  const picked: string[] = [];
+  for (let i = 0; i < 3 && pool.length > 0; i++) {
+    const idx = Math.floor(rng() * pool.length);
+    picked.push(pool.splice(idx, 1)[0]);
+  }
+  return picked.join(", ");
 }
