@@ -21,6 +21,7 @@ export const TELEGRAM_URL = "https://t.me/+your_channel_invite";
 
 export const NAV_TABS = [
   { href: "/", label: "예언" },
+  { href: "/predict", label: "내예언" },
   { href: "/market", label: "시장온도" },
   { href: "/guide", label: "가이드" },
   { href: "/about", label: "소개" },
