@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { settleWindow, statsEnabled } from "@/lib/stats";
+import { settleWindow, statsEnabled, WINDOWS } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -22,7 +22,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, connected: false });
   }
 
-  await settleWindow("4h", 500);
-  await settleWindow("24h", 500);
+  for (const w of WINDOWS) await settleWindow(w, 500);
   return NextResponse.json({ ok: true });
 }

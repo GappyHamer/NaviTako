@@ -48,7 +48,6 @@ export default async function OgImage({
             marginBottom: 8,
           }}
         >
-          <span style={{ fontSize: 46 }}>🐙</span>
           <span>{font ? label : "TAKO ORACLE"}</span>
         </div>
 

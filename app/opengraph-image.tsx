@@ -26,8 +26,6 @@ export default async function OgImage() {
           fontFamily: font ? "NotoSansKR" : "sans-serif",
         }}
       >
-        <div style={{ display: "flex", fontSize: 150, marginBottom: 6 }}>🐙</div>
-
         <div
           style={{
             display: "flex",

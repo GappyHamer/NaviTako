@@ -9,13 +9,13 @@ import {
   type MarketIndicators,
   type OracleSide,
 } from "@/lib/oracle";
-import {
-  LOADING_MESSAGES,
-  LONG_MENTS,
-  LUCK_MODE_BADGE,
-  SHORT_MENTS,
-} from "@/config/ments";
+import { LOADING_MESSAGES, LUCK_MODE_BADGE } from "@/config/ments";
 import { DISCLAIMER_CARD } from "@/config/site";
+import {
+  makeKeywordPhrase,
+  SEED_POOLS,
+  type KeywordPools,
+} from "@/config/keywords";
 import AdSlot from "@/components/AdSlot";
 
 type Phase = "idle" | "summoning" | "revealed";
@@ -71,6 +71,7 @@ export default function OracleClient() {
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
   const [nowTs, setNowTs] = useState(0);
   const [adOpen, setAdOpen] = useState(false);
+  const [pools, setPools] = useState<KeywordPools>(SEED_POOLS);
   const timersRef = useRef<{ interval?: ReturnType<typeof setInterval> }>({});
   const mountedRef = useRef(true);
 
@@ -106,6 +107,22 @@ export default function OracleClient() {
     return () => clearInterval(id);
   }, [cooldownUntil]);
 
+  // 키워드 풀 로드 (마운트 시 1회, 실패해도 SEED_POOLS 유지)
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/keywords", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: KeywordPools | null) => {
+        if (alive && d && Array.isArray(d.targets) && d.targets.length) {
+          setPools(d);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   const remaining =
     cooldownUntil !== null ? cooldownUntil - nowTs : 0;
   const locked = cooldownUntil !== null && remaining > 0;
@@ -134,8 +151,7 @@ export default function OracleClient() {
 
       const reading = computeReading(indicators);
       const side = drawOracle(reading.pLong);
-      const pool = side === "LONG" ? LONG_MENTS : SHORT_MENTS;
-      const ment = pool[Math.floor(Math.random() * pool.length)];
+      const ment = makeKeywordPhrase(side, pools);
       const res: OracleResult = {
         side,
         ment,
@@ -162,7 +178,7 @@ export default function OracleClient() {
       }
       setPhase("revealed");
     },
-    [phase, cooldownUntil]
+    [phase, cooldownUntil, pools]
   );
 
   const onAdDone = useCallback(() => {
@@ -259,19 +275,14 @@ export default function OracleClient() {
                   </span>
                 )}
                 <p
-                  className={`text-6xl font-black tracking-tight ${
+                  className={`text-8xl font-black tracking-tight ${
                     result.side === "LONG" ? "txt-long" : "txt-short"
                   }`}
                 >
                   {result.side}
                 </p>
-                {!result.luckMode && (
-                  <p className="txt-muted text-sm font-medium">
-                    오늘의 기류: {result.label}
-                  </p>
-                )}
-                <p className="txt text-center text-sm leading-relaxed">
-                  “{result.ment}”
+                <p className="txt-strong text-center text-xl font-bold tracking-wide">
+                  {result.ment}
                 </p>
                 <p className="txt-faint mt-2 text-center text-[11px] leading-relaxed">
                   {DISCLAIMER_CARD}
