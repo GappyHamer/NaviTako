@@ -197,43 +197,40 @@ export default function OracleClient() {
       className="flex flex-col items-center gap-8 py-8"
       aria-live="polite"
     >
-      {phase !== "revealed" && (
+      {/* 문어는 항상 위에 고정 — 결과가 떠 있어도 사라지지 않는다 */}
+      <div
+        className={`octo select-none text-[7rem] leading-none sm:text-[9rem] ${
+          phase === "summoning" ? "animate-octo-shake" : "animate-octo-bob"
+        }`}
+        role="img"
+        aria-label="예언가 문어 Tako"
+      >
+        🐙
+      </div>
+
+      {phase === "idle" && (
         <>
-          <div
-            className={`octo select-none text-[7rem] leading-none sm:text-[9rem] ${
-              phase === "summoning" ? "animate-octo-shake" : "animate-octo-bob"
-            }`}
-            role="img"
-            aria-label="예언가 문어 Tako"
+          <p className="txt-muted max-w-md text-center text-sm leading-relaxed">
+            전설의 예언가 Tako가 실시간으로 시장을 읽고 롱숏, 단 하나의 예언을
+            내려줍니다.
+          </p>
+          <button
+            type="button"
+            onClick={() => void summon()}
+            className="btn-accent animate-glow-pulse rounded-2xl px-12 py-5 text-xl font-bold shadow-[0_0_40px_rgba(139,92,246,0.45)] transition-transform active:scale-95"
           >
-            🐙
-          </div>
-
-          {phase === "idle" && (
-            <>
-              <p className="txt-muted max-w-md text-center text-sm leading-relaxed">
-                전설의 예언가 Tako가 실시간으로 시장을 읽고 롱숏, 단 하나의
-                예언을 내려줍니다.
-              </p>
-              <button
-                type="button"
-                onClick={() => void summon()}
-                className="btn-accent animate-glow-pulse rounded-2xl px-12 py-5 text-xl font-bold shadow-[0_0_40px_rgba(139,92,246,0.45)] transition-transform active:scale-95"
-              >
-                🔮 예언 받기
-              </button>
-            </>
-          )}
-
-          {phase === "summoning" && (
-            <p
-              key={messageIndex}
-              className="txt-accent animate-fade-up min-h-6 text-center text-base font-medium"
-            >
-              {LOADING_MESSAGES[messageIndex % LOADING_MESSAGES.length]}
-            </p>
-          )}
+            🔮 예언 받기
+          </button>
         </>
+      )}
+
+      {phase === "summoning" && (
+        <p
+          key={messageIndex}
+          className="txt-accent animate-fade-up min-h-6 text-center text-base font-medium"
+        >
+          {LOADING_MESSAGES[messageIndex % LOADING_MESSAGES.length]}
+        </p>
       )}
 
       {phase === "revealed" && result && (

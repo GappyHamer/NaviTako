@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 /**
  * Tako 예언 성적표 (재미로 보는).
  *
- * Phase 2: /api/stats 에서 오늘의 롱/숏 분포 + 실제 4h/24h 적중률을 가져온다.
- * 저장소가 연결되지 않았거나 표본이 너무 적으면(<MIN) 시드 기반의 결정론적
- * 재미용 수치로 폴백한다 → 갓 배포한 상태에서도 위젯이 비어 보이지 않는다.
+ * 컨셉: "장난인데 의외로 좀 맞네?" 하는 반응을 노린다. 큰 적중률 숫자 + 값에
+ * 따라 바뀌는 리액션 한 줄로 재미를 준다.
+ *
+ * 데이터: /api/stats 에서 오늘 롱/숏 분포 + 실제 4h/24h 적중률. 저장소 미연결이나
+ * 표본 부족(<MIN) 이면 시드 기반 결정론적 값으로 폴백한다(비어 보이지 않게).
  */
 
 type Tally = { hits: number; total: number };
 type Win = "4h" | "24h";
-type Period = "all" | "d30" | "d7";
 
 type StatsPayload = {
   connected: boolean;
@@ -20,17 +21,12 @@ type StatsPayload = {
   accuracy: Record<Win, { all: Tally; d30: Tally; d7: Tally }>;
 };
 
-const MIN_SAMPLES = 12;
+const MIN_SAMPLES = 8;
 const numberFormat = new Intl.NumberFormat("ko-KR");
 
 const WINDOWS: { key: Win; label: string }[] = [
   { key: "4h", label: "4시간 뒤" },
   { key: "24h", label: "24시간 뒤" },
-];
-const PERIODS: { key: Period; label: string }[] = [
-  { key: "all", label: "전체" },
-  { key: "d30", label: "최근 30일" },
-  { key: "d7", label: "최근 7일" },
 ];
 
 /** FNV-1a 결정론적 0~1 (Math.random·Date 미사용 → 하이드레이션 안전) */
@@ -43,32 +39,41 @@ function seeded(key: string): number {
   return (h >>> 0) / 2 ** 32;
 }
 function funAccuracy(key: string): number {
-  return 48 + seeded(key) * 11;
+  return 49 + seeded(key) * 9;
+}
+
+/** 적중률 값에 따른 리액션 한 줄 */
+function reaction(acc: number): string {
+  if (acc >= 56) return "😳 장난인데 왜 이렇게 맞지…";
+  if (acc >= 52) return "🤔 어라, 생각보다 하는데?";
+  if (acc >= 48) return "🪙 딱 동전 던지기 수준이네요";
+  return "🤡 역시 문어에게 너무 기댔나";
 }
 
 export default function AccuracyWidget() {
   const [stats, setStats] = useState<StatsPayload | null>(null);
   const [win, setWin] = useState<Win>("24h");
-  const [period, setPeriod] = useState<Period>("all");
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    let alive = true;
-    fetch("/api/stats", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d: StatsPayload | null) => {
-        if (alive && d) setStats(d);
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
+  const fetchStats = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const res = await fetch("/api/stats", { cache: "no-store" });
+      if (res.ok) setStats((await res.json()) as StatsPayload);
+    } catch {
+      // 무시 (이전 값 유지)
+    } finally {
+      setRefreshing(false);
+    }
   }, []);
 
-  const tally = stats?.accuracy?.[win]?.[period];
+  useEffect(() => {
+    void fetchStats();
+  }, [fetchStats]);
+
+  const tally = stats?.accuracy?.[win]?.all;
   const hasReal = Boolean(stats?.connected && tally && tally.total >= MIN_SAMPLES);
-  const acc = hasReal
-    ? (tally!.hits / tally!.total) * 100
-    : funAccuracy(win + period);
+  const acc = hasReal ? (tally!.hits / tally!.total) * 100 : funAccuracy(win);
   const isUp = acc >= 50;
 
   const dist = stats?.distribution;
@@ -85,21 +90,30 @@ export default function AccuracyWidget() {
         🎯 재미로 보는 Tako 예언 성적표
       </p>
 
-      {/* 오늘의 예언 분포 */}
+      {/* 오늘의 예언 분포 (+ 새로고침) */}
       <div className="mt-4">
         <div className="txt-faint flex items-center justify-between text-[11px]">
           <span>오늘의 예언 분포</span>
-          <span>
-            {hasDist ? `총 ${numberFormat.format(dist!.total)}회` : "집계 중"}
+          <span className="flex items-center gap-1.5">
+            <span>{hasDist ? `총 ${numberFormat.format(dist!.total)}회` : "집계 중"}</span>
+            <button
+              type="button"
+              onClick={() => void fetchStats()}
+              disabled={refreshing}
+              aria-label="분포 새로고침"
+              title="새로고침"
+              className="grid h-5 w-5 place-items-center rounded-full hover:opacity-70 disabled:opacity-40"
+            >
+              <span className={refreshing ? "inline-block animate-spin" : ""}>
+                🔄
+              </span>
+            </button>
           </span>
         </div>
         {hasDist ? (
           <>
             <div className="mt-1.5 flex h-3 overflow-hidden rounded-full">
-              <div
-                className="bg-emerald-500"
-                style={{ width: `${longPct}%` }}
-              />
+              <div className="bg-emerald-500" style={{ width: `${longPct}%` }} />
               <div className="bg-red-500" style={{ width: `${shortPct}%` }} />
             </div>
             <div className="mt-1 flex justify-between text-[11px] font-semibold">
@@ -116,9 +130,20 @@ export default function AccuracyWidget() {
 
       <hr className="border-app my-4" />
 
-      {/* 적중률 */}
+      {/* 적중률 — "장난인데 의외로 맞네?" */}
       <div className="text-center">
-        <div className="flex justify-center gap-1.5">
+        <p className="txt-faint text-xs">장난인 줄 알았는데…</p>
+        <p className="txt mt-0.5 text-sm font-medium">{reaction(acc)}</p>
+
+        <p
+          className={`mt-1 text-5xl font-black tabular-nums ${
+            isUp ? "txt-long" : "txt-short"
+          }`}
+        >
+          {acc.toFixed(1)}%
+        </p>
+
+        <div className="mt-2 flex justify-center gap-1.5">
           {WINDOWS.map((w) => (
             <button
               key={w.key}
@@ -134,36 +159,11 @@ export default function AccuracyWidget() {
           ))}
         </div>
 
-        <p
-          className={`mt-2.5 text-4xl font-black tabular-nums ${
-            isUp ? "txt-long" : "txt-short"
-          }`}
-        >
-          {acc.toFixed(1)}%
-        </p>
-        <p className="txt-faint mt-1 text-xs">
+        <p className="txt-faint mt-2 text-xs">
           {hasReal
-            ? `예언 ${numberFormat.format(tally!.total)}건 중 ${numberFormat.format(tally!.hits)}건 적중`
-            : "아직 집계 전이라 재미로 보여드려요"}
+            ? `예언 ${numberFormat.format(tally!.total)}건 중 ${numberFormat.format(tally!.hits)}건이 실제로 맞았어요`
+            : "집계가 쌓이면 진짜 성적으로 바뀌어요 (지금은 미리보기)"}
         </p>
-
-        <div className="mt-3 flex flex-wrap justify-center gap-1.5">
-          {PERIODS.map((p) => (
-            <button
-              key={p.key}
-              type="button"
-              onClick={() => setPeriod(p.key)}
-              aria-pressed={p.key === period}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                p.key === period
-                  ? "btn-accent"
-                  : "surface txt-muted hover:opacity-80"
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
       </div>
 
       <p className="txt-faint mt-3 text-center text-[10px] leading-relaxed">
