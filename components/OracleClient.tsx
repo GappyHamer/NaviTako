@@ -275,7 +275,7 @@ export default function OracleClient() {
                   </span>
                 )}
                 <p
-                  className={`text-8xl font-black tracking-tight ${
+                  className={`text-7xl font-black tracking-tight sm:text-8xl ${
                     result.side === "LONG" ? "txt-long" : "txt-short"
                   }`}
                 >
