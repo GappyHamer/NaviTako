@@ -21,7 +21,7 @@ export const TELEGRAM_CONTACT = "https://t.me/Gong_ms";
 
 export const NAV_TABS = [
   { href: "/", label: "예언" },
-  { href: "/predict", label: "내예언" },
+  { href: "/predict", label: "예언하기" },
   { href: "/market", label: "시장온도" },
   { href: "/guide", label: "가이드" },
   { href: "/about", label: "소개" },

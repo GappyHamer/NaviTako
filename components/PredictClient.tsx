@@ -218,6 +218,7 @@ export default function PredictClient() {
                 alt={auth.name ?? "프로필"}
                 width={24}
                 height={24}
+                referrerPolicy="no-referrer"
                 className="rounded-full"
               />
             ) : null}

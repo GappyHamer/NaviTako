@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CONTACT_EMAIL, SITE_NAME, TELEGRAM_CONTACT } from "@/config/site";
+import { SITE_NAME, TELEGRAM_CONTACT } from "@/config/site";
 
 export const metadata: Metadata = {
   title: "문의",
@@ -31,12 +31,6 @@ export default function ContactPage() {
             @Gong_ms
           </a>
           <p className="txt-muted mt-2 text-xs">가장 빠른 문의 방법이에요</p>
-          <p className="txt-faint mt-3 text-xs">
-            또는 이메일:{" "}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-4">
-              {CONTACT_EMAIL}
-            </a>
-          </p>
         </div>
 
         <div className="space-y-2">
