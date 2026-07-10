@@ -13,7 +13,12 @@ type AdSlotProps = {
   className?: string;
 };
 
+/** 광고 전체 스위치. false면 모든 AdSlot이 렌더되지 않는다 (자리는 코드에 보존). */
+export const ADS_ENABLED = false;
+
 export default function AdSlot({ slot, height = 250, className = "" }: AdSlotProps) {
+  if (!ADS_ENABLED) return null;
+
   return (
     <div
       className={`ad-slot ${className}`}

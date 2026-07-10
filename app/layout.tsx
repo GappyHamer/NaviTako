@@ -3,7 +3,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TelegramPromo from "@/components/TelegramPromo";
-import AdSlot from "@/components/AdSlot";
+import AdSlot, { ADS_ENABLED } from "@/components/AdSlot";
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -77,20 +77,24 @@ export default function RootLayout({
         <Header />
         <div className="mx-auto flex w-full max-w-[1400px] flex-1 justify-center gap-6 px-4">
           {/* 좌측 세로 광고 (넓은 화면에서만, 예언 버튼과 떨어진 가장자리) */}
-          <aside className="hidden w-40 shrink-0 xl:block">
-            <div className="sticky top-20">
-              <AdSlot slot="left-rail" height={600} />
-            </div>
-          </aside>
+          {ADS_ENABLED && (
+            <aside className="hidden w-40 shrink-0 xl:block">
+              <div className="sticky top-20">
+                <AdSlot slot="left-rail" height={600} />
+              </div>
+            </aside>
+          )}
 
           <main className="w-full max-w-3xl">{children}</main>
 
           {/* 우측 세로 광고 */}
-          <aside className="hidden w-40 shrink-0 xl:block">
-            <div className="sticky top-20">
-              <AdSlot slot="right-rail" height={600} />
-            </div>
-          </aside>
+          {ADS_ENABLED && (
+            <aside className="hidden w-40 shrink-0 xl:block">
+              <div className="sticky top-20">
+                <AdSlot slot="right-rail" height={600} />
+              </div>
+            </aside>
+          )}
         </div>
         <Footer />
         <TelegramPromo />

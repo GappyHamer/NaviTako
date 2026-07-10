@@ -13,11 +13,11 @@ export const SITE_URL =
 
 export const CONTACT_EMAIL = "juyongjang98@gmail.com";
 
-/**
- * 암호화폐 텔레그램 홍보 링크.
- * 실제 채널을 만든 뒤 이 한 줄만 본인 초대 링크(https://t.me/xxxx)로 바꾸면 됩니다.
- */
-export const TELEGRAM_URL = "https://t.me/+your_channel_invite";
+/** 암호화폐 텔레그램 홍보 채널 (좌하단 홍보 팝업) */
+export const TELEGRAM_URL = "https://t.me/x125lever";
+
+/** 문의용 개인 텔레그램 (문의 페이지 연결) */
+export const TELEGRAM_CONTACT = "https://t.me/Gong_ms";
 
 export const NAV_TABS = [
   { href: "/", label: "예언" },

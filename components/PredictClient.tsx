@@ -40,6 +40,14 @@ type LeaderboardPayload = {
   me: LeaderboardEntry | null;
 };
 
+type AuthMe = {
+  loggedIn: boolean;
+  authEnabled: boolean;
+  sub: string | null;
+  name: string | null;
+  picture: string | null;
+};
+
 /* ---------- 유틸 ---------- */
 
 function accLabel(hits: number, total: number): string {
@@ -80,6 +88,7 @@ export default function PredictClient() {
   const [hasNick, setHasNick] = useState(false);
   const [nickInput, setNickInput] = useState("");
 
+  const [auth, setAuth] = useState<AuthMe | null>(null);
   const [status, setStatus] = useState<PredictStatus | null>(null);
   const [board, setBoard] = useState<LeaderboardPayload | null>(null);
   const [sort, setSort] = useState<LbSort>("streak");
@@ -116,14 +125,44 @@ export default function PredictClient() {
     }
   }, []);
 
-  // 마운트: 클라이언트에서만 userId/nick 읽고 초기 로드
+  // 마운트: 로그인 상태(me)를 먼저 확인해 식별자(uid)를 확정한 뒤 초기 로드
   useEffect(() => {
     setMounted(true);
-    const id = getUserId();
-    setUid(id);
-    setHasNick(Boolean(getNick()));
-    void loadStatus(id);
-    void loadBoard(id, "streak");
+    let cancelled = false;
+    void (async () => {
+      let me: AuthMe;
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        me = (await res.json()) as AuthMe;
+      } catch {
+        me = {
+          loggedIn: false,
+          authEnabled: false,
+          sub: null,
+          name: null,
+          picture: null,
+        };
+      }
+      if (cancelled) return;
+      setAuth(me);
+
+      let id: string;
+      if (me.loggedIn && me.sub) {
+        // 로그인: 구글 정체성 사용, 닉네임 게이트 건너뜀
+        id = `g:${me.sub}`;
+        setHasNick(true);
+      } else {
+        // 비로그인: 기존 익명 UUID + 닉네임 게이트
+        id = getUserId();
+        setHasNick(Boolean(getNick()));
+      }
+      setUid(id);
+      void loadStatus(id);
+      void loadBoard(id, "streak");
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [loadStatus, loadBoard]);
 
   function handleStartNick() {
@@ -144,10 +183,12 @@ export default function PredictClient() {
     setSubmitting(true);
     setAlreadyToday(false);
     try {
+      const nick =
+        auth?.loggedIn ? auth.name ?? "" : getNick() ?? "";
       const res = await fetch("/api/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: uid, nick: getNick() ?? "", side }),
+        body: JSON.stringify({ userId: uid, nick, side }),
       });
       const data = (await res.json()) as { ok: boolean; reason?: string };
       if (data.ok) {
@@ -163,6 +204,54 @@ export default function PredictClient() {
     }
   }
 
+  /* ---------- 로그인 상태 바 ---------- */
+  function renderAuthBar() {
+    if (!auth) return null;
+    if (auth.loggedIn) {
+      return (
+        <div className="surface flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
+          <span className="flex min-w-0 items-center gap-2">
+            {auth.picture ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={auth.picture}
+                alt={auth.name ?? "프로필"}
+                width={24}
+                height={24}
+                className="rounded-full"
+              />
+            ) : null}
+            <span className="txt-strong truncate text-sm font-medium">
+              {auth.name}
+            </span>
+          </span>
+          <a
+            href="/api/auth/logout"
+            className="txt-muted link-accent whitespace-nowrap text-xs"
+          >
+            로그아웃
+          </a>
+        </div>
+      );
+    }
+    if (auth.authEnabled) {
+      return (
+        <div className="surface flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
+          <span className="txt-muted text-xs leading-relaxed">
+            구글로 로그인하고 다른 기기에서도 기록을 이어가세요
+          </span>
+          <a
+            href="/api/auth/login"
+            className="btn-accent whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold"
+          >
+            구글로 로그인
+          </a>
+        </div>
+      );
+    }
+    return null;
+  }
+
   /* ---------- 마운트 전 스켈레톤 ---------- */
   if (!mounted) {
     return (
@@ -176,6 +265,8 @@ export default function PredictClient() {
   if (!hasNick) {
     const canStart = nickInput.trim().length > 0;
     return (
+      <div className="space-y-4">
+      {renderAuthBar()}
       <section className="surface rounded-2xl p-6 space-y-4">
         <h1 className="txt-strong text-xl font-bold">닉네임을 정해주세요</h1>
         <p className="txt-muted text-sm leading-relaxed">
@@ -201,6 +292,7 @@ export default function PredictClient() {
           시작하기
         </button>
       </section>
+      </div>
     );
   }
 
@@ -208,6 +300,7 @@ export default function PredictClient() {
 
   return (
     <div className="space-y-8">
+      {renderAuthBar()}
       {/* ---------- 오늘의 예측 ---------- */}
       <section className="surface rounded-2xl p-6 space-y-5">
         {status?.predictedToday ? (

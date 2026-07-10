@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CONTACT_EMAIL, SITE_NAME } from "@/config/site";
+import { CONTACT_EMAIL, SITE_NAME, TELEGRAM_CONTACT } from "@/config/site";
 
 export const metadata: Metadata = {
   title: "문의",
@@ -14,20 +14,29 @@ export default function ContactPage() {
       <header className="space-y-2">
         <h1 className="txt-strong text-2xl font-bold">📮 문의</h1>
         <p className="txt-muted text-sm leading-relaxed">
-          {SITE_NAME}에 대한 의견은 언제나 환영이에요. 아래 이메일로 보내주시면
-          확인하고 답변드릴게요.
+          {SITE_NAME}에 대한 의견은 언제나 환영이에요. 텔레그램으로 편하게
+          연락 주시면 확인하고 답변드릴게요.
         </p>
       </header>
 
       <section className="txt space-y-6 text-sm leading-relaxed">
         <div className="surface rounded-2xl p-6 text-center">
-          <p className="txt-faint text-xs">이메일</p>
+          <p className="txt-faint text-xs">텔레그램</p>
           <a
-            href={`mailto:${CONTACT_EMAIL}`}
-            className="txt-accent mt-1 inline-block text-lg font-semibold underline underline-offset-4"
+            href={TELEGRAM_CONTACT}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="link-accent mt-1 inline-block text-lg font-semibold underline underline-offset-4"
           >
-            {CONTACT_EMAIL}
+            @Gong_ms
           </a>
+          <p className="txt-muted mt-2 text-xs">가장 빠른 문의 방법이에요</p>
+          <p className="txt-faint mt-3 text-xs">
+            또는 이메일:{" "}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-4">
+              {CONTACT_EMAIL}
+            </a>
+          </p>
         </div>
 
         <div className="space-y-2">
