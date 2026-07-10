@@ -15,17 +15,18 @@ export async function GET(req: NextRequest) {
   const state = sp.get("state");
   const saved = req.cookies.get(STATE_COOKIE)?.value;
 
-  if (!authEnabled || !code || !state || state !== saved) {
-    return NextResponse.redirect(new URL("/predict?login=error", req.url));
-  }
+  const fail = (e: string) =>
+    NextResponse.redirect(new URL(`/predict?login=error&e=${e}`, req.url));
 
-  const session = await exchangeCode(code);
-  if (!session) {
-    return NextResponse.redirect(new URL("/predict?login=error", req.url));
-  }
+  if (!authEnabled) return fail("disabled");
+  if (!code) return fail("nocode");
+  if (!state || state !== saved) return fail("state");
+
+  const result = await exchangeCode(code);
+  if ("error" in result) return fail(encodeURIComponent(result.error));
 
   const res = NextResponse.redirect(new URL("/predict", req.url));
-  res.cookies.set(SESSION_COOKIE, signSession(session), {
+  res.cookies.set(SESSION_COOKIE, signSession(result.session), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

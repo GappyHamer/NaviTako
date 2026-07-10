@@ -44,9 +44,11 @@ export function buildGoogleAuthUrl(state: string): string {
   return `https://accounts.google.com/o/oauth2/v2/auth?${p.toString()}`;
 }
 
-/** code → 토큰 교환 → id_token 디코드 → Session */
-export async function exchangeCode(code: string): Promise<Session | null> {
-  if (!authEnabled) return null;
+export type ExchangeResult = { session: Session } | { error: string };
+
+/** code → 토큰 교환 → id_token 디코드 → Session (실패 시 사유 반환) */
+export async function exchangeCode(code: string): Promise<ExchangeResult> {
+  if (!authEnabled) return { error: "disabled" };
   try {
     const res = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
@@ -60,22 +62,33 @@ export async function exchangeCode(code: string): Promise<Session | null> {
       }),
       signal: AbortSignal.timeout(5000),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      let e = `http_${res.status}`;
+      try {
+        const j = (await res.json()) as { error?: string };
+        if (j?.error) e = String(j.error);
+      } catch {
+        // 본문 파싱 실패 → 상태코드만
+      }
+      return { error: e };
+    }
     const data = (await res.json()) as { id_token?: string };
     const part = data.id_token?.split(".")[1];
-    if (!part) return null;
+    if (!part) return { error: "no_id_token" };
     const payload = JSON.parse(
       Buffer.from(part, "base64url").toString("utf8")
     ) as { sub?: string; email?: string; name?: string; picture?: string };
-    if (!payload.sub) return null;
+    if (!payload.sub) return { error: "no_sub" };
     return {
-      sub: payload.sub,
-      email: payload.email ?? "",
-      name: payload.name ?? "익명",
-      picture: payload.picture ?? "",
+      session: {
+        sub: payload.sub,
+        email: payload.email ?? "",
+        name: payload.name ?? "익명",
+        picture: payload.picture ?? "",
+      },
     };
   } catch {
-    return null;
+    return { error: "fetch_fail" };
   }
 }
 
