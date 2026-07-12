@@ -1,12 +1,15 @@
 /**
- * Phase 3 — 사용자 데일리 예측 + 리더보드 (서버 전용).
+ * Phase 3+ — 로그인 플레이어의 다중 시간대 롱/숏 예측 + 리더보드 (서버 전용).
  *
- * 사용자가 하루 1번 BTC 롱/숏을 직접 예측하면 24시간 뒤 실제 방향으로 채점한다
- * (Tako 적중률과 같은 klines 정산). 개인 누적 적중·연속 스트릭을 쌓아 리더보드로
- * 보여준다. 저장소는 Upstash Redis(통계와 같은 DB)를 쓰고, 미연결이면 폴백.
+ * 시간대 5종: 4h / 1d / 1w / 1mo / 1y. 모든 경계는 KST(UTC+9) 09:00 기준.
+ *  - 4h : 09·13·17·21·01·05시(KST)로 4시간 격자
+ *  - 1d : 당일 09:00 ~ 익일 09:00
+ *  - 1w : 월요일 09:00 ~ 다음 월요일 09:00 (달력 주)
+ *  - 1mo: 1일 09:00 ~ 다음달 1일 09:00 (달력 월)
+ *  - 1y : 1/1 09:00 ~ 다음해 1/1 09:00 (달력 연)
  *
- * 정체성은 익명 userId(클라이언트 UUID). 닉네임은 표시용. 하루 1회 제한이
- * 기본 어뷰징 방지이고, 구글 로그인은 이 userId 에 계정을 붙이는 식으로 확장한다.
+ * 채점: 예측 시점 가격 → 해당 기간 종료 시점 가격의 방향. 한 기간당 1회 예측(잠금).
+ * 시간대별 적중률·연속 스트릭 누적 + 전체 합산(통합) 리더보드. 로그인 필수.
  */
 
 import { Redis } from "@upstash/redis";
@@ -20,31 +23,86 @@ export const leaderboardEnabled = Boolean(url && token);
 const redis = leaderboardEnabled ? new Redis({ url, token }) : null;
 
 export type Side = "LONG" | "SHORT";
-export type LbSort = "streak" | "acc";
+export type Tf = "4h" | "1d" | "1w" | "1mo" | "1y";
+export const TIMEFRAMES: Tf[] = ["4h", "1d", "1w", "1mo", "1y"];
+export type LbKey = Tf | "all";
+export type LbSort = "acc" | "streak";
 
-const HOUR = 60 * 60 * 1000;
-const JUDGE_MS = 24 * HOUR; // 24시간 뒤 채점
-const KST_OFFSET = 9 * HOUR;
-const MIN_QUALIFY = 5; // 적중률 순위 등록 최소 예측 수
+const H = 60 * 60 * 1000;
+const D = 24 * H;
+const KST = 9 * H;
+const MIN_QUALIFY = 3; // 적중률 순위 등록 최소 예측 수
 const TOP_N = 20;
 
-const PENDING = "upred:pending";
-const LB_STREAK = "lb:streak";
-const LB_ACC = "lb:acc";
-const userKey = (id: string) => `u:${id}`;
+/* ---------------- 기간 경계 (KST 09:00 기준) ---------------- */
 
-function todayKST(): string {
-  return new Date(Date.now() + KST_OFFSET).toISOString().slice(0, 10);
+export type Period = { key: string; start: number; end: number };
+
+function iso13(kstMs: number): string {
+  return new Date(kstMs).toISOString().slice(0, 13); // YYYY-MM-DDTHH
+}
+function iso10(kstMs: number): string {
+  return new Date(kstMs).toISOString().slice(0, 10); // YYYY-MM-DD
 }
 
-function num(v: unknown): number {
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : 0;
+/** 현재 열린 기간. now(UTC ms) 기준. KST 필드는 shifted ms를 UTC로 읽어 얻는다. */
+export function currentPeriod(tf: Tf, now: number): Period {
+  const k = now + KST; // KST 기준 ms (UTC로 읽으면 KST 달력값)
+  const d = new Date(k);
+  const Y = d.getUTCFullYear();
+  const M = d.getUTCMonth();
+  const DA = d.getUTCDate();
+  const HH = d.getUTCHours();
+
+  if (tf === "4h") {
+    // 경계가 09:00을 지나도록 1시간 오프셋 (KST hour ≡ 1 mod 4 → 1,5,9,13,17,21)
+    const startK = Math.floor((k - 1 * H) / (4 * H)) * (4 * H) + 1 * H;
+    return { key: `4h:${iso13(startK)}`, start: startK - KST, end: startK - KST + 4 * H };
+  }
+  if (tf === "1d") {
+    let startK = Date.UTC(Y, M, DA, 9);
+    if (HH < 9) startK -= D;
+    return { key: `1d:${iso10(startK)}`, start: startK - KST, end: startK - KST + D };
+  }
+  if (tf === "1w") {
+    let startK = Date.UTC(Y, M, DA, 9);
+    if (HH < 9) startK -= D;
+    const dow = new Date(startK).getUTCDay(); // 0=Sun..6=Sat
+    const back = (dow + 6) % 7; // 월요일까지 되돌리기
+    startK -= back * D;
+    return { key: `1w:${iso10(startK)}`, start: startK - KST, end: startK - KST + 7 * D };
+  }
+  if (tf === "1mo") {
+    let sY = Y;
+    let sM = M;
+    let startK = Date.UTC(Y, M, 1, 9);
+    if (k < startK) {
+      sM = M - 1;
+      if (sM < 0) {
+        sM = 11;
+        sY = Y - 1;
+      }
+      startK = Date.UTC(sY, sM, 1, 9);
+    }
+    const endK = Date.UTC(sM === 11 ? sY + 1 : sY, sM === 11 ? 0 : sM + 1, 1, 9);
+    return {
+      key: `1mo:${sY}-${String(sM + 1).padStart(2, "0")}`,
+      start: startK - KST,
+      end: endK - KST,
+    };
+  }
+  // 1y
+  let sY = Y;
+  let startK = Date.UTC(Y, 0, 1, 9);
+  if (k < startK) {
+    sY = Y - 1;
+    startK = Date.UTC(sY, 0, 1, 9);
+  }
+  const endK = Date.UTC(sY + 1, 0, 1, 9);
+  return { key: `1y:${sY}`, start: startK - KST, end: endK - KST };
 }
 
-function sanitizeNick(nick: string): string {
-  return nick.replace(/\s+/g, " ").trim().slice(0, 16);
-}
+/* ---------------- 가격 (Binance) ---------------- */
 
 async function getCurrentPrice(): Promise<number | null> {
   try {
@@ -69,88 +127,63 @@ async function getPriceAt(ms: number): Promise<number | null> {
     );
     if (!res.ok) return null;
     const arr = (await res.json()) as unknown[];
-    const k = arr?.[0] as unknown[] | undefined;
-    const close = k ? Number(k[4]) : NaN;
+    const kk = arr?.[0] as unknown[] | undefined;
+    const close = kk ? Number(kk[4]) : NaN;
     return Number.isFinite(close) ? close : null;
   } catch {
     return null;
   }
 }
 
-export type UserRecord = {
-  nick: string;
-  hits: number;
-  total: number;
-  streak: number;
-  best: number;
-};
+/* ---------------- Redis 키 ---------------- */
 
-export type PredictStatus = {
-  connected: boolean;
-  record: UserRecord | null;
-  predictedToday: boolean;
-  todaySide: Side | null;
-};
+const kProfile = (u: string) => `u:${u}`; // hash {nick, pic}
+const kStats = (u: string) => `u:${u}:s`; // hash {tf.hits, tf.total, tf.streak, tf.best}
+const kCur = (u: string) => `u:${u}:cur`; // hash {tf -> periodKey|side|price}
+const kQueue = (tf: Tf) => `jq:${tf}`; // zset score=end member=uid|periodKey|side|price
+const kLb = (key: LbKey, sort: LbSort) => `lb:${key}:${sort}`; // zset uid->metric
 
-/** 사용자 현재 상태(오늘 예측했는지 + 누적 기록) */
-export async function getUserStatus(userId: string): Promise<PredictStatus> {
-  if (!redis || !userId) {
-    return { connected: leaderboardEnabled, record: null, predictedToday: false, todaySide: null };
-  }
-  try {
-    const h = await redis.hgetall<Record<string, unknown>>(userKey(userId));
-    if (!h) {
-      return { connected: true, record: null, predictedToday: false, todaySide: null };
-    }
-    const record: UserRecord = {
-      nick: typeof h.nick === "string" ? h.nick : "익명",
-      hits: num(h.hits),
-      total: num(h.total),
-      streak: num(h.streak),
-      best: num(h.best),
-    };
-    const predictedToday = h.lastDay === todayKST();
-    const todaySide =
-      predictedToday && (h.lastSide === "LONG" || h.lastSide === "SHORT")
-        ? (h.lastSide as Side)
-        : null;
-    return { connected: true, record, predictedToday, todaySide };
-  } catch {
-    return { connected: true, record: null, predictedToday: false, todaySide: null };
-  }
+function num(v: unknown): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
 }
+
+/* ---------------- 예측 기록 ---------------- */
 
 export type PredictResult = {
   ok: boolean;
-  reason?: "disabled" | "invalid" | "already_today" | "no_price" | "error";
+  reason?: "disabled" | "invalid" | "already_period" | "no_price" | "error";
 };
 
-/** 오늘의 예측 1건 기록 (하루 1회 제한) */
-export async function recordUserPrediction(
+export async function recordPrediction(
   userId: string,
-  nick: string,
+  profile: { nick: string; pic: string },
+  tf: Tf,
   side: Side
 ): Promise<PredictResult> {
   if (!redis) return { ok: false, reason: "disabled" };
-  if (!userId || (side !== "LONG" && side !== "SHORT")) {
+  if (!userId || !TIMEFRAMES.includes(tf) || (side !== "LONG" && side !== "SHORT")) {
     return { ok: false, reason: "invalid" };
   }
-  const cleanNick = sanitizeNick(nick) || "익명";
-  const today = todayKST();
-  const key = userKey(userId);
+  const now = Date.now();
+  const period = currentPeriod(tf, now);
 
   try {
-    const lastDay = await redis.hget<string>(key, "lastDay");
-    if (lastDay === today) return { ok: false, reason: "already_today" };
-
+    const existing = await redis.hget<string>(kCur(userId), tf);
+    if (existing && existing.split("|")[0] === period.key) {
+      return { ok: false, reason: "already_period" };
+    }
     const price = await getCurrentPrice();
     if (price === null) return { ok: false, reason: "no_price" };
 
-    const ts = Date.now();
-    await redis.hset(key, { nick: cleanNick, lastDay: today, lastSide: side });
-    await redis.zadd(PENDING, {
-      score: ts + JUDGE_MS,
-      member: `${userId}|${ts}|${side}|${price}`,
+    await redis.hset(kProfile(userId), {
+      nick: (profile.nick || "플레이어").slice(0, 24),
+      pic: (profile.pic || "").slice(0, 300),
+    });
+    await redis.hset(kCur(userId), { [tf]: `${period.key}|${side}|${price}` });
+    await redis.zadd(kQueue(tf), {
+      score: period.end,
+      member: `${userId}|${period.key}|${side}|${price}|${period.end}`,
     });
     return { ok: true };
   } catch {
@@ -158,14 +191,41 @@ export async function recordUserPrediction(
   }
 }
 
-/** 만기(24h) 예측 정산 — ZREM 선점으로 중복 방지, 스트릭·리더보드 갱신 */
-export async function settleUserPredictions(cap = 100): Promise<void> {
+/* ---------------- 정산 ---------------- */
+
+async function recomputeCombined(userId: string): Promise<{
+  hits: number;
+  total: number;
+  streak: number;
+}> {
+  const h = await redis!.hgetall<Record<string, unknown>>(kStats(userId));
+  let hits = 0;
+  let total = 0;
+  let streak = 0;
+  for (const tf of TIMEFRAMES) {
+    hits += num(h?.[`${tf}.hits`]);
+    total += num(h?.[`${tf}.total`]);
+    streak += num(h?.[`${tf}.streak`]);
+  }
+  return { hits, total, streak };
+}
+
+async function updateLb(userId: string, key: LbKey, hits: number, total: number, streak: number) {
+  await redis!.zadd(kLb(key, "streak"), { score: streak, member: userId });
+  if (total >= MIN_QUALIFY) {
+    await redis!.zadd(kLb(key, "acc"), {
+      score: Math.round((hits / total) * 10000),
+      member: userId,
+    });
+  }
+}
+
+export async function settleWindow(tf: Tf, cap = 100): Promise<void> {
   if (!redis) return;
   const now = Date.now();
-
   let members: string[] = [];
   try {
-    members = (await redis.zrange(PENDING, 0, now, {
+    members = (await redis.zrange(kQueue(tf), 0, now, {
       byScore: true,
       offset: 0,
       count: cap,
@@ -177,7 +237,7 @@ export async function settleUserPredictions(cap = 100): Promise<void> {
   for (const m of members) {
     let claimed = 0;
     try {
-      claimed = await redis.zrem(PENDING, m);
+      claimed = await redis.zrem(kQueue(tf), m);
     } catch {
       continue;
     }
@@ -185,16 +245,17 @@ export async function settleUserPredictions(cap = 100): Promise<void> {
 
     const parts = m.split("|");
     const userId = parts[0];
-    const ts = Number(parts[1]);
     const side = parts[2] as Side;
     const price = Number(parts[3]);
-    if (!userId || !Number.isFinite(ts) || !Number.isFinite(price)) continue;
+    const end = Number(parts[4]);
+    if (!userId || !Number.isFinite(price) || !Number.isFinite(end)) continue;
 
-    const priceAt = await getPriceAt(ts + JUDGE_MS);
-    if (priceAt === null) {
-      if (now < ts + JUDGE_MS + 6 * HOUR) {
+    const endPrice = await getPriceAt(end);
+    if (endPrice === null) {
+      // 종료 시점 시세 못 구함 → 재시도 (너무 오래된 건 포기)
+      if (now < end + 6 * H) {
         try {
-          await redis.zadd(PENDING, { score: ts + JUDGE_MS, member: m });
+          await redis.zadd(kQueue(tf), { score: end, member: m });
         } catch {
           // 무시
         }
@@ -203,111 +264,188 @@ export async function settleUserPredictions(cap = 100): Promise<void> {
     }
 
     const hit =
-      (side === "LONG" && priceAt > price) ||
-      (side === "SHORT" && priceAt < price);
-    const key = userKey(userId);
+      (side === "LONG" && endPrice > price) ||
+      (side === "SHORT" && endPrice < price);
+
     try {
-      await redis.hincrby(key, "total", 1);
+      await redis.hincrby(kStats(userId), `${tf}.total`, 1);
       let streak: number;
       if (hit) {
-        await redis.hincrby(key, "hits", 1);
-        streak = await redis.hincrby(key, "streak", 1);
-        const best = num(await redis.hget(key, "best"));
-        if (streak > best) await redis.hset(key, { best: streak });
+        await redis.hincrby(kStats(userId), `${tf}.hits`, 1);
+        streak = await redis.hincrby(kStats(userId), `${tf}.streak`, 1);
+        const best = num(await redis.hget(kStats(userId), `${tf}.best`));
+        if (streak > best) await redis.hset(kStats(userId), { [`${tf}.best`]: streak });
       } else {
-        await redis.hset(key, { streak: 0 });
+        await redis.hset(kStats(userId), { [`${tf}.streak`]: 0 });
         streak = 0;
       }
+      const tfHits = num(await redis.hget(kStats(userId), `${tf}.hits`));
+      const tfTotal = num(await redis.hget(kStats(userId), `${tf}.total`));
+      await updateLb(userId, tf, tfHits, tfTotal, streak);
 
-      const hits = num(await redis.hget(key, "hits"));
-      const total = num(await redis.hget(key, "total"));
-      await redis.zadd(LB_STREAK, { score: streak, member: userId });
-      if (total >= MIN_QUALIFY) {
-        await redis.zadd(LB_ACC, {
-          score: Math.round((hits / total) * 10000),
-          member: userId,
-        });
-      }
+      const c = await recomputeCombined(userId);
+      await updateLb(userId, "all", c.hits, c.total, c.streak);
     } catch {
       // 무시
     }
   }
 }
 
-export type LeaderboardEntry = {
-  rank: number;
-  nick: string;
+export async function settleAll(cap = 100): Promise<void> {
+  for (const tf of TIMEFRAMES) await settleWindow(tf, cap);
+}
+
+/* ---------------- 플레이어 상태 ---------------- */
+
+export type TfState = {
   hits: number;
   total: number;
   streak: number;
   best: number;
+  pickedSide: Side | null; // 현재 열린 기간에 이미 찍은 방향
+  periodEnd: number; // 현재 기간 종료(ms)
+};
+
+export type PlayerState = {
+  connected: boolean;
+  perTf: Record<Tf, TfState>;
+  combined: { hits: number; total: number; streak: number };
+};
+
+export async function getPlayerState(userId: string): Promise<PlayerState> {
+  const empty = (): PlayerState => {
+    const perTf = {} as Record<Tf, TfState>;
+    const now = Date.now();
+    for (const tf of TIMEFRAMES) {
+      perTf[tf] = { hits: 0, total: 0, streak: 0, best: 0, pickedSide: null, periodEnd: currentPeriod(tf, now).end };
+    }
+    return { connected: leaderboardEnabled, perTf, combined: { hits: 0, total: 0, streak: 0 } };
+  };
+  if (!redis || !userId) return empty();
+
+  try {
+    await settleAll(40);
+    const now = Date.now();
+    const [stats, cur] = await Promise.all([
+      redis.hgetall<Record<string, unknown>>(kStats(userId)),
+      redis.hgetall<Record<string, unknown>>(kCur(userId)),
+    ]);
+    const perTf = {} as Record<Tf, TfState>;
+    let cH = 0;
+    let cT = 0;
+    let cS = 0;
+    for (const tf of TIMEFRAMES) {
+      const period = currentPeriod(tf, now);
+      const raw = typeof cur?.[tf] === "string" ? (cur[tf] as string) : "";
+      const p = raw.split("|");
+      const pickedSide =
+        p[0] === period.key && (p[1] === "LONG" || p[1] === "SHORT")
+          ? (p[1] as Side)
+          : null;
+      const hits = num(stats?.[`${tf}.hits`]);
+      const total = num(stats?.[`${tf}.total`]);
+      const streak = num(stats?.[`${tf}.streak`]);
+      const best = num(stats?.[`${tf}.best`]);
+      perTf[tf] = { hits, total, streak, best, pickedSide, periodEnd: period.end };
+      cH += hits;
+      cT += total;
+      cS += streak;
+    }
+    return { connected: true, perTf, combined: { hits: cH, total: cT, streak: cS } };
+  } catch {
+    return empty();
+  }
+}
+
+/* ---------------- 리더보드 ---------------- */
+
+export type LbEntry = {
+  rank: number;
+  nick: string;
+  pic: string;
+  hits: number;
+  total: number;
+  streak: number;
   isMe: boolean;
 };
 
 export type LeaderboardPayload = {
   connected: boolean;
+  key: LbKey;
   sort: LbSort;
-  top: LeaderboardEntry[];
-  me: LeaderboardEntry | null;
+  top: LbEntry[];
+  me: LbEntry | null;
 };
 
-async function recordOf(userId: string): Promise<UserRecord> {
-  const h = await redis!.hgetall<Record<string, unknown>>(userKey(userId));
+async function statsFor(userId: string, key: LbKey): Promise<{ hits: number; total: number; streak: number; nick: string; pic: string }> {
+  const [profile, stats] = await Promise.all([
+    redis!.hgetall<Record<string, unknown>>(kProfile(userId)),
+    redis!.hgetall<Record<string, unknown>>(kStats(userId)),
+  ]);
+  const nick = profile && typeof profile.nick === "string" ? profile.nick : "플레이어";
+  const pic = profile && typeof profile.pic === "string" ? profile.pic : "";
+  if (key === "all") {
+    let hits = 0;
+    let total = 0;
+    let streak = 0;
+    for (const tf of TIMEFRAMES) {
+      hits += num(stats?.[`${tf}.hits`]);
+      total += num(stats?.[`${tf}.total`]);
+      streak += num(stats?.[`${tf}.streak`]);
+    }
+    return { hits, total, streak, nick, pic };
+  }
   return {
-    nick: h && typeof h.nick === "string" ? h.nick : "익명",
-    hits: num(h?.hits),
-    total: num(h?.total),
-    streak: num(h?.streak),
-    best: num(h?.best),
+    hits: num(stats?.[`${key}.hits`]),
+    total: num(stats?.[`${key}.total`]),
+    streak: num(stats?.[`${key}.streak`]),
+    nick,
+    pic,
   };
 }
 
-/** 리더보드 상위 N + 내 순위. 읽기 전에 지연 정산. */
 export async function getLeaderboard(
+  key: LbKey,
   sort: LbSort,
   meUserId?: string
 ): Promise<LeaderboardPayload> {
-  if (!redis) {
-    return { connected: false, sort, top: [], me: null };
-  }
+  if (!redis) return { connected: false, key, sort, top: [], me: null };
+  await settleAll(40);
 
-  await settleUserPredictions();
-
-  const key = sort === "acc" ? LB_ACC : LB_STREAK;
   let ids: string[] = [];
   try {
-    ids = (await redis.zrange(key, 0, TOP_N - 1, { rev: true })) as string[];
+    ids = (await redis.zrange(kLb(key, sort), 0, TOP_N - 1, { rev: true })) as string[];
   } catch {
     ids = [];
   }
 
-  const top: LeaderboardEntry[] = [];
+  const top: LbEntry[] = [];
   for (let i = 0; i < ids.length; i++) {
-    const rec = await recordOf(ids[i]);
+    const s = await statsFor(ids[i], key);
     top.push({
       rank: i + 1,
-      nick: rec.nick,
-      hits: rec.hits,
-      total: rec.total,
-      streak: rec.streak,
-      best: rec.best,
+      nick: s.nick,
+      pic: s.pic,
+      hits: s.hits,
+      total: s.total,
+      streak: s.streak,
       isMe: meUserId === ids[i],
     });
   }
 
-  let me: LeaderboardEntry | null = null;
+  let me: LbEntry | null = null;
   if (meUserId) {
     try {
-      const rank = await redis.zrevrank(key, meUserId);
-      const rec = await recordOf(meUserId);
-      if (rec.total > 0 || rank !== null) {
+      const rank = await redis.zrevrank(kLb(key, sort), meUserId);
+      const s = await statsFor(meUserId, key);
+      if (s.total > 0 || rank !== null) {
         me = {
           rank: rank === null ? 0 : rank + 1,
-          nick: rec.nick,
-          hits: rec.hits,
-          total: rec.total,
-          streak: rec.streak,
-          best: rec.best,
+          nick: s.nick,
+          pic: s.pic,
+          hits: s.hits,
+          total: s.total,
+          streak: s.streak,
           isMe: true,
         };
       }
@@ -316,5 +454,5 @@ export async function getLeaderboard(
     }
   }
 
-  return { connected: true, sort, top, me };
+  return { connected: true, key, sort, top, me };
 }

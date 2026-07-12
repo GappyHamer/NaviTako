@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { settleWindow, statsEnabled, WINDOWS } from "@/lib/stats";
-import { settleUserPredictions } from "@/lib/leaderboard";
+import { settleAll } from "@/lib/leaderboard";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -24,6 +24,6 @@ export async function GET(req: Request) {
   }
 
   for (const w of WINDOWS) await settleWindow(w, 500);
-  await settleUserPredictions(500);
+  await settleAll(500);
   return NextResponse.json({ ok: true });
 }
