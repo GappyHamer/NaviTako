@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CONTACT_EMAIL, SITE_NAME } from "@/config/site";
+import { SITE_NAME } from "@/config/site";
 
 export const metadata: Metadata = {
   title: "소개",
@@ -64,10 +64,6 @@ export default function AboutPage() {
         <h2 className="txt-strong text-lg font-semibold">문의</h2>
         <p>
           제안이나 오류 제보, 기타 문의는{" "}
-          <a href={`mailto:${CONTACT_EMAIL}`} className="link-accent">
-            {CONTACT_EMAIL}
-          </a>{" "}
-          또는{" "}
           <Link href="/contact" className="link-accent">
             문의 페이지
           </Link>

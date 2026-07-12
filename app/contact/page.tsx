@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SITE_NAME, TELEGRAM_CONTACT } from "@/config/site";
+import { SITE_NAME } from "@/config/site";
+import { contactBotEnabled } from "@/lib/telegram";
+import ContactForm from "@/components/ContactForm";
 
 export const metadata: Metadata = {
   title: "문의",
@@ -14,25 +16,20 @@ export default function ContactPage() {
       <header className="space-y-2">
         <h1 className="txt-strong text-2xl font-bold">📮 문의</h1>
         <p className="txt-muted text-sm leading-relaxed">
-          {SITE_NAME}에 대한 의견은 언제나 환영이에요. 텔레그램으로 편하게
-          연락 주시면 확인하고 답변드릴게요.
+          제안·오류 제보·제휴 문의를 남겨주세요. 확인 후 회신드립니다.
         </p>
       </header>
 
-      <section className="txt space-y-6 text-sm leading-relaxed">
-        <div className="surface rounded-2xl p-6 text-center">
-          <p className="txt-faint text-xs">텔레그램</p>
-          <a
-            href={TELEGRAM_CONTACT}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="link-accent mt-1 inline-block text-lg font-semibold underline underline-offset-4"
-          >
-            @Gong_ms
-          </a>
-          <p className="txt-muted mt-2 text-xs">가장 빠른 문의 방법이에요</p>
-        </div>
+      <section className="space-y-4">
+        {!contactBotEnabled && (
+          <p className="txt-faint text-xs">
+            문의 채널을 연결하는 중이에요. 곧 정상화됩니다.
+          </p>
+        )}
+        <ContactForm />
+      </section>
 
+      <section className="txt space-y-6 text-sm leading-relaxed">
         <div className="space-y-2">
           <h2 className="txt-strong text-lg font-semibold">이런 문의를 받아요</h2>
           <ul className="list-disc space-y-1 pl-5">
