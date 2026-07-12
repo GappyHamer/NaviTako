@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { CONTACT_EMAIL, SITE_NAME } from "@/config/site";
+import Link from "next/link";
+import { SITE_NAME } from "@/config/site";
 
 export const metadata: Metadata = {
   title: "개인정보처리방침",
@@ -128,10 +129,11 @@ export default function PrivacyPage() {
         <div className="space-y-2">
           <h2 className="txt-strong text-lg font-semibold">8. 문의</h2>
           <p>
-            개인정보 관련 문의:{" "}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="link-accent">
-              {CONTACT_EMAIL}
-            </a>
+            개인정보 관련 문의는{" "}
+            <Link href="/contact" className="link-accent">
+              문의 페이지
+            </Link>
+            를 이용해 주세요.
           </p>
         </div>
       </section>
