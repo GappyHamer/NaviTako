@@ -33,6 +33,8 @@ const D = 24 * H;
 const KST = 9 * H;
 const MIN_QUALIFY = 3; // 적중률 순위 등록 최소 예측 수
 const TOP_N = 20;
+const NICK_MAX = 16; // 닉네임 최대 길이
+const NICK_COOLDOWN = 90 * D; // 닉네임 변경 쿨다운(90일)
 
 /* ---------------- 기간 경계 (KST 09:00 기준) ---------------- */
 
@@ -176,10 +178,14 @@ export async function recordPrediction(
     const price = await getCurrentPrice();
     if (price === null) return { ok: false, reason: "no_price" };
 
-    await redis.hset(kProfile(userId), {
-      nick: (profile.nick || "플레이어").slice(0, 24),
-      pic: (profile.pic || "").slice(0, 300),
-    });
+    // 닉네임은 최초 1회만 구글 이름으로 시드(이후 사용자가 커스텀 설정 가능),
+    // 프로필 사진 URL은 항상 최신 구글 사진으로 갱신(표시 여부는 picOn 이 제어)
+    await redis.hsetnx(
+      kProfile(userId),
+      "nick",
+      (profile.nick || "플레이어").slice(0, NICK_MAX)
+    );
+    await redis.hset(kProfile(userId), { pic: (profile.pic || "").slice(0, 300) });
     await redis.hset(kCur(userId), { [tf]: `${period.key}|${side}|${price}` });
     await redis.zadd(kQueue(tf), {
       score: period.end,
@@ -308,6 +314,9 @@ export type TfState = {
 
 export type PlayerState = {
   connected: boolean;
+  nick: string; // 커스텀 닉네임(없으면 "")
+  picOn: boolean; // 프로필 사진 표시 여부
+  nickChangeableAt: number; // 다음 변경 가능 시각(ms). 0이면 지금 변경 가능
   perTf: Record<Tf, TfState>;
   combined: { hits: number; total: number; streak: number };
 };
@@ -319,17 +328,30 @@ export async function getPlayerState(userId: string): Promise<PlayerState> {
     for (const tf of TIMEFRAMES) {
       perTf[tf] = { hits: 0, total: 0, streak: 0, best: 0, pickedSide: null, periodEnd: currentPeriod(tf, now).end };
     }
-    return { connected: leaderboardEnabled, perTf, combined: { hits: 0, total: 0, streak: 0 } };
+    return {
+      connected: leaderboardEnabled,
+      nick: "",
+      picOn: true,
+      nickChangeableAt: 0,
+      perTf,
+      combined: { hits: 0, total: 0, streak: 0 },
+    };
   };
   if (!redis || !userId) return empty();
 
   try {
     await settleAll(40);
     const now = Date.now();
-    const [stats, cur] = await Promise.all([
+    const [stats, cur, profile] = await Promise.all([
       redis.hgetall<Record<string, unknown>>(kStats(userId)),
       redis.hgetall<Record<string, unknown>>(kCur(userId)),
+      redis.hgetall<Record<string, unknown>>(kProfile(userId)),
     ]);
+    const nick =
+      profile && typeof profile.nick === "string" ? profile.nick : "";
+    const picOn = !(profile && profile.picOn === "0");
+    const nickAt = num(profile?.nickAt);
+    const nickChangeableAt = nickAt > 0 ? nickAt + NICK_COOLDOWN : 0;
     const perTf = {} as Record<Tf, TfState>;
     let cH = 0;
     let cT = 0;
@@ -351,9 +373,60 @@ export async function getPlayerState(userId: string): Promise<PlayerState> {
       cT += total;
       cS += streak;
     }
-    return { connected: true, perTf, combined: { hits: cH, total: cT, streak: cS } };
+    return {
+      connected: true,
+      nick,
+      picOn,
+      nickChangeableAt,
+      perTf,
+      combined: { hits: cH, total: cT, streak: cS },
+    };
   } catch {
     return empty();
+  }
+}
+
+/* ---------------- 프로필 (닉네임·사진 표시) ---------------- */
+
+export type ProfileResult = {
+  ok: boolean;
+  reason?: "disabled" | "invalid" | "cooldown" | "error";
+  nick?: string;
+  picOn?: boolean;
+  nickChangeableAt?: number;
+};
+
+/** 닉네임 변경. 최초 설정은 자유, 이후 90일에 1회. */
+export async function setNick(userId: string, raw: string): Promise<ProfileResult> {
+  if (!redis) return { ok: false, reason: "disabled" };
+  const nick = (raw ?? "").trim().replace(/\s+/g, " ").slice(0, NICK_MAX);
+  if (!userId || nick.length < 1) return { ok: false, reason: "invalid" };
+  try {
+    const now = Date.now();
+    const lastAt = num(await redis.hget(kProfile(userId), "nickAt"));
+    if (lastAt > 0 && now < lastAt + NICK_COOLDOWN) {
+      return {
+        ok: false,
+        reason: "cooldown",
+        nickChangeableAt: lastAt + NICK_COOLDOWN,
+      };
+    }
+    await redis.hset(kProfile(userId), { nick, nickAt: now });
+    return { ok: true, nick, nickChangeableAt: now + NICK_COOLDOWN };
+  } catch {
+    return { ok: false, reason: "error" };
+  }
+}
+
+/** 프로필 사진 표시 on/off */
+export async function setPicOn(userId: string, on: boolean): Promise<ProfileResult> {
+  if (!redis) return { ok: false, reason: "disabled" };
+  if (!userId) return { ok: false, reason: "invalid" };
+  try {
+    await redis.hset(kProfile(userId), { picOn: on ? "1" : "0" });
+    return { ok: true, picOn: on };
+  } catch {
+    return { ok: false, reason: "error" };
   }
 }
 
@@ -383,7 +456,9 @@ async function statsFor(userId: string, key: LbKey): Promise<{ hits: number; tot
     redis!.hgetall<Record<string, unknown>>(kStats(userId)),
   ]);
   const nick = profile && typeof profile.nick === "string" ? profile.nick : "플레이어";
-  const pic = profile && typeof profile.pic === "string" ? profile.pic : "";
+  const picOn = !(profile && profile.picOn === "0");
+  const pic =
+    picOn && profile && typeof profile.pic === "string" ? profile.pic : "";
   if (key === "all") {
     let hits = 0;
     let total = 0;

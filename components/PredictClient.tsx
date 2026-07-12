@@ -24,6 +24,9 @@ type PredictData =
       loggedIn: true;
       name: string;
       picture: string;
+      nick: string;
+      picOn: boolean;
+      nickChangeableAt: number;
       connected: boolean;
       perTf: Record<Tf, TfState>;
       combined: { hits: number; total: number; streak: number };
@@ -81,6 +84,13 @@ function formatRemaining(ms: number): string {
   return `${h}시간 ${m}분 ${s}초`;
 }
 
+function fmtDate(ms: number): string {
+  const d = new Date(ms);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(
+    d.getDate(),
+  ).padStart(2, "0")}`;
+}
+
 /* ---------- 메인 ---------- */
 
 export default function PredictClient() {
@@ -93,6 +103,13 @@ export default function PredictClient() {
 
   const [submittingTf, setSubmittingTf] = useState<Tf | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
+
+  /* 설정 패널 */
+  const [showSettings, setShowSettings] = useState(false);
+  const [nickInput, setNickInput] = useState("");
+  const [nickMsg, setNickMsg] = useState("");
+  const [savingNick, setSavingNick] = useState(false);
+  const [savingPic, setSavingPic] = useState(false);
 
   /* 1초 틱 (카운트다운) */
   useEffect(() => {
@@ -186,40 +203,182 @@ export default function PredictClient() {
   }
 
   /* ---------- 로그인 상태 ---------- */
-  const { name, picture, perTf, combined } = data;
+  const { name, picture, nick, picOn, nickChangeableAt, perTf, combined } = data;
+  const displayName = nick || name;
+  const avatarChar = displayName.trim().charAt(0).toUpperCase() || "🐙";
+  const nickLocked = nickChangeableAt > now;
   const combinedAcc =
     combined.total > 0
       ? `${((combined.hits / combined.total) * 100).toFixed(1)}%`
       : "-";
+
+  async function submitNick() {
+    if (savingNick || nickLocked) return;
+    const next = nickInput.trim();
+    if (!next || next === (nick || name)) return;
+    setSavingNick(true);
+    setNickMsg("");
+    try {
+      const res = await fetch("/api/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nick: next }),
+      });
+      const j = (await res.json()) as {
+        ok: boolean;
+        reason?: string;
+        nickChangeableAt?: number;
+      };
+      if (res.ok && j.ok) {
+        setNickMsg("닉네임을 바꿨어요");
+        await Promise.all([loadPredict(), loadBoard(lbKey, lbSort)]);
+      } else if (res.status === 429 || j.reason === "cooldown") {
+        setNickMsg(
+          `다음 변경 가능: ${fmtDate(j.nickChangeableAt ?? nickChangeableAt)}`,
+        );
+      } else {
+        setNickMsg("닉네임을 확인해주세요");
+      }
+    } catch {
+      setNickMsg("닉네임을 확인해주세요");
+    } finally {
+      setSavingNick(false);
+    }
+  }
+
+  async function togglePic() {
+    if (savingPic) return;
+    setSavingPic(true);
+    try {
+      const res = await fetch("/api/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ picOn: !picOn }),
+      });
+      const j = (await res.json()) as { ok: boolean };
+      if (res.ok && j.ok) {
+        await Promise.all([loadPredict(), loadBoard(lbKey, lbSort)]);
+      }
+    } catch {
+      // 조용히 무시
+    } finally {
+      setSavingPic(false);
+    }
+  }
 
   return (
     <div className="space-y-8">
       {/* ---------- 프로필 바 ---------- */}
       <section className="surface flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={picture}
-            referrerPolicy="no-referrer"
-            width={40}
-            height={40}
-            className="rounded-full"
-            alt={name}
-          />
+          {picOn ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={picture}
+              referrerPolicy="no-referrer"
+              width={40}
+              height={40}
+              className="rounded-full"
+              alt={displayName}
+            />
+          ) : (
+            <span className="surface-solid border-app txt-strong flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-bold">
+              {avatarChar}
+            </span>
+          )}
           <div className="min-w-0">
-            <p className="txt-strong truncate text-sm font-semibold">{name}</p>
+            <p className="txt-strong truncate text-sm font-semibold">
+              {displayName}
+            </p>
             <p className="txt-muted text-xs">
               🎯 {combinedAcc} · 🔥 {combined.streak}
             </p>
           </div>
         </div>
-        <a
-          href="/api/auth/logout"
-          className="link-accent whitespace-nowrap text-xs"
-        >
-          로그아웃
-        </a>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setNickInput("");
+              setNickMsg("");
+              setShowSettings((v) => !v);
+            }}
+            className="link-accent whitespace-nowrap text-xs"
+          >
+            설정
+          </button>
+          <a
+            href="/api/auth/logout"
+            className="link-accent whitespace-nowrap text-xs"
+          >
+            로그아웃
+          </a>
+        </div>
       </section>
+
+      {/* ---------- 설정 패널 ---------- */}
+      {showSettings && (
+        <section className="surface space-y-5 rounded-2xl p-5">
+          {/* 닉네임 변경 */}
+          <div className="space-y-2">
+            <p className="txt-strong text-sm font-semibold">닉네임 변경</p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                maxLength={16}
+                value={nickInput}
+                placeholder={nick || name}
+                disabled={nickLocked || savingNick}
+                onChange={(e) => setNickInput(e.target.value)}
+                className="surface-solid border-app txt-strong min-w-0 flex-1 rounded-xl border px-3 py-2 text-sm disabled:opacity-40"
+              />
+              <button
+                type="button"
+                onClick={submitNick}
+                disabled={nickLocked || savingNick}
+                className="btn-accent whitespace-nowrap rounded-xl px-4 py-2 text-sm font-bold disabled:opacity-40"
+              >
+                변경
+              </button>
+            </div>
+            {nickLocked ? (
+              <p className="txt-faint text-xs">
+                다음 변경 가능: {fmtDate(nickChangeableAt)}
+              </p>
+            ) : (
+              <p className="txt-faint text-xs">
+                닉네임은 한 번 바꾸면 90일간 다시 못 바꿔요
+              </p>
+            )}
+            {nickMsg && (
+              <p
+                className={`text-xs ${
+                  nickMsg === "닉네임을 바꿨어요" ? "txt-muted" : "txt-short"
+                }`}
+              >
+                {nickMsg}
+              </p>
+            )}
+          </div>
+
+          {/* 프로필 사진 표시 */}
+          <div className="border-app flex items-center justify-between gap-3 border-t pt-4">
+            <span className="txt-strong text-sm font-semibold">
+              프로필 사진 표시
+            </span>
+            <button
+              type="button"
+              onClick={togglePic}
+              disabled={savingPic}
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold disabled:opacity-40 ${
+                picOn ? "btn-accent" : "surface-solid border-app txt-muted border"
+              }`}
+            >
+              {picOn ? "켜짐" : "꺼짐"}
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* ---------- 시간대별 예언 ---------- */}
       <section className="space-y-4">
