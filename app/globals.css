@@ -234,35 +234,30 @@ body {
   transform: scale(1.05) rotate(-4deg);
 }
 
-/* 히어로 문어 — 호버 시 서서히 커진다.
-   scale 속성은 transform 과 독립이라 bob/흔들림(transform)과 합성된다. */
-.octo-hero {
-  display: inline-block;
-  cursor: pointer;
-  scale: 1;
-  transition:
-    scale 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
-    filter 0.35s ease;
-  will-change: transform, scale, filter;
+/* 히어로 문어 호버 — 서서히 커진다.
+   Lightning CSS(Tailwind v4)가 `scale` 속성을 드롭하므로 반드시 transform 사용.
+   흔들림/bob(transform)은 안쪽 중첩 래퍼가 담당 → 서로 독립적으로 합성된다. */
+.octo-hover {
+  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
 }
-.octo-hero:hover {
-  scale: 1.08;
+.octo-hover:hover {
+  transform: scale(1.08);
 }
 
-/* 소환 중 문어: 흔들림(transform) + 서서히 커짐(scale) 합성.
-   흔들림은 ease-in-out 으로 부드럽게, 커짐은 2.6s(SUMMON_MS) 동안 1 → 1.12. */
-@keyframes summon-grow {
+/* 소환 중 문어: 서서히 커짐(transform scale, 2.6s = SUMMON_MS 동안 1 → 1.12).
+   흔들림은 안쪽 animate-octo-shake 래퍼가 별도로 담당한다. */
+@keyframes octo-grow {
   from {
-    scale: 1;
+    transform: scale(1);
   }
   to {
-    scale: 1.12;
+    transform: scale(1.12);
   }
 }
-.octo-summoning {
-  animation:
-    octo-shake 0.9s ease-in-out infinite,
-    summon-grow 2.6s ease-out forwards;
+.octo-grow {
+  animation: octo-grow 2.6s ease-out forwards;
+  will-change: transform;
 }
 
 /* ---------- 결과 리빙: 문어 아래 glow 플래시 → 카드 펼침(unfold) ---------- */
@@ -493,11 +488,11 @@ body {
   .animate-octo-shake,
   .animate-glow-pulse,
   .animate-fade-up,
-  .octo-summoning,
+  .octo-grow,
   .reveal-unfold,
   .glow-flash,
   .octo,
-  .octo-hero {
+  .octo-hover {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition: none !important;

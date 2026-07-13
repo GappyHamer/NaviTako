@@ -5,7 +5,7 @@ import HeroTitle from "@/components/HeroTitle";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col items-stretch gap-16 sm:gap-24">
+    <div className="flex flex-col items-stretch gap-8 sm:gap-12">
       <HeroTitle />
 
       <OracleClient />

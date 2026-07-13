@@ -234,20 +234,47 @@ export default function OracleClient() {
 
   return (
     <section
-      className="flex flex-col items-center gap-8 py-8"
+      className="flex flex-col items-center gap-8 pb-8 pt-2"
       aria-live="polite"
     >
       {/* 문어는 항상 위에 고정 — 결과가 떠 있어도 사라지지 않는다.
-          클릭하면 예언 소환(접근성용 버튼은 아래에 별도 유지). */}
-      <div
-        className={`octo-hero octo-glow octo-glass relative w-fit cursor-pointer select-none ${
-          phase === "summoning" ? "octo-summoning" : "animate-octo-bob"
-        }`}
-        role="img"
-        aria-label="예언가 문어 Tako"
-        onClick={onOcto}
-      >
-        {/* 소환 중: 넓은 반지름에서 문어 중심으로 수렴하며 문어 뒤(-z-10)로 사라지는 파티클 */}
+          클릭하면 예언 소환(접근성용 버튼은 아래에 별도 유지).
+          STAGE(transform 없음)를 기준으로 파티클을 문어 흔들림과 독립시킨다. */}
+      <div className="relative w-fit">
+        {/* 호버 스케일(transform) → grow(transform) → 흔들림/bob(transform) 중첩 */}
+        <div
+          className="octo-hover relative cursor-pointer select-none"
+          role="img"
+          aria-label="예언가 문어 Tako"
+          tabIndex={0}
+          onClick={onOcto}
+        >
+          <div className={phase === "summoning" ? "octo-grow" : ""}>
+            <div
+              className={
+                phase === "summoning"
+                  ? "animate-octo-shake"
+                  : "animate-octo-bob"
+              }
+            >
+              <div className="octo-glow octo-glass">
+                {/* 메인 이미지 (히어로 전용) — 나머지 문어는 Icon(/octopus.png) 사용 */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/octopus-main.png"
+                  alt=""
+                  width={224}
+                  height={224}
+                  draggable={false}
+                  className="h-40 w-40 select-none sm:h-56 sm:w-56"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 소환 중: 넓은 반지름에서 문어 중심으로 수렴하는 파티클.
+            STAGE의 직접 자식(형제)이라 문어 transform(흔들림/grow)의 영향을 받지 않는다. */}
         {phase === "summoning" && (
           <div
             className="pointer-events-none absolute inset-0 -z-10 overflow-visible"
@@ -269,17 +296,6 @@ export default function OracleClient() {
             ))}
           </div>
         )}
-
-        {/* 메인 이미지 (히어로 전용) — 나머지 문어는 Icon(/octopus.png) 사용 */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/octopus-main.png"
-          alt=""
-          width={160}
-          height={160}
-          draggable={false}
-          className="h-28 w-28 select-none sm:h-40 sm:w-40"
-        />
       </div>
 
       {phase === "idle" && (
