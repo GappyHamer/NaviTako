@@ -42,6 +42,19 @@
   --warn: #b45309;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+/* 접근성: 키보드 포커스 시 액센트 아웃라인 (마우스 클릭엔 표시 안 함) */
+a:focus-visible,
+button:focus-visible,
+[role="img"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
 body {
   background-color: var(--bg);
   background-image: var(--bg-grad);
@@ -190,15 +203,6 @@ body {
   }
 }
 
-@keyframes card-flip {
-  from {
-    transform: rotateY(0deg);
-  }
-  to {
-    transform: rotateY(180deg);
-  }
-}
-
 .animate-octo-bob {
   animation: octo-bob 3s ease-in-out infinite;
 }
@@ -230,24 +234,89 @@ body {
   transform: scale(1.05) rotate(-4deg);
 }
 
-/* ---------- 결과 카드 플립 ---------- */
+/* 히어로 문어 — 호버 시 서서히 커진다.
+   scale 속성은 transform 과 독립이라 bob/흔들림(transform)과 합성된다. */
+.octo-hero {
+  display: inline-block;
+  cursor: pointer;
+  scale: 1;
+  transition:
+    scale 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+    filter 0.35s ease;
+  will-change: transform, scale, filter;
+}
+.octo-hero:hover {
+  scale: 1.08;
+}
 
-.flip-scene {
-  perspective: 1200px;
+/* 소환 중 문어: 흔들림(transform) + 서서히 커짐(scale) 합성.
+   흔들림은 ease-in-out 으로 부드럽게, 커짐은 2.6s(SUMMON_MS) 동안 1 → 1.12. */
+@keyframes summon-grow {
+  from {
+    scale: 1;
+  }
+  to {
+    scale: 1.12;
+  }
 }
-.flip-inner {
-  position: relative;
-  transform-style: preserve-3d;
-  animation: card-flip 0.8s ease-in-out forwards;
+.octo-summoning {
+  animation:
+    octo-shake 0.9s ease-in-out infinite,
+    summon-grow 2.6s ease-out forwards;
 }
-.flip-face {
-  backface-visibility: hidden;
+
+/* ---------- 결과 리빙: 문어 아래 glow 플래시 → 카드 펼침(unfold) ---------- */
+
+/* 순간 glow 하이라이트 플래시 — 블러된 accent radial 이 0→1→0 (1회) */
+@keyframes glow-flash {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35);
+  }
 }
-.flip-back {
+.glow-flash {
   position: absolute;
-  inset: 0;
-  transform: rotateY(180deg);
-  backface-visibility: hidden;
+  left: 50%;
+  top: -6px;
+  z-index: -1;
+  width: 230px;
+  height: 230px;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 60%, transparent) 0%,
+    transparent 65%
+  );
+  filter: blur(16px);
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation: glow-flash 0.6s ease-out both;
+}
+
+/* 카드가 아래에서 펼쳐지며 등장 — opacity + scale(0.85→1) + translateY(8→0) */
+@keyframes reveal-unfold {
+  from {
+    opacity: 0;
+    scale: 0.85;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+    transform: translateY(0);
+  }
+}
+.reveal-unfold {
+  transform-origin: top center;
+  will-change: transform, opacity, scale;
+  animation: reveal-unfold 0.5s ease-out both;
 }
 
 /* ---------- 예언 카드 소환 연출 (transform/opacity/filter만 → 60fps) ---------- */
@@ -324,29 +393,6 @@ body {
   box-shadow: 0 0 10px 1px color-mix(in srgb, var(--accent) 65%, transparent);
   will-change: transform, opacity;
   animation: particle-converge 1.1s ease-in infinite;
-}
-
-/* 소환 후반 강한 흔들림 (octo-shake보다 격렬한 회전+translate) */
-@keyframes card-rattle {
-  0%,
-  100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  20% {
-    transform: translate(-3px, 1px) rotate(-2.5deg);
-  }
-  40% {
-    transform: translate(3px, -1px) rotate(2.5deg);
-  }
-  60% {
-    transform: translate(-2px, -1px) rotate(-1.8deg);
-  }
-  80% {
-    transform: translate(2px, 1px) rotate(1.8deg);
-  }
-}
-.animate-rattle {
-  animation: card-rattle 0.18s linear infinite;
 }
 
 /* ---------- 광고 슬롯 (고정 높이 예약 → CLS 방지) ---------- */
@@ -447,9 +493,11 @@ body {
   .animate-octo-shake,
   .animate-glow-pulse,
   .animate-fade-up,
-  .animate-rattle,
-  .flip-inner,
-  .octo {
+  .octo-summoning,
+  .reveal-unfold,
+  .glow-flash,
+  .octo,
+  .octo-hero {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition: none !important;

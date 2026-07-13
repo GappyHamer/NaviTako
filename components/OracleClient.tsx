@@ -198,6 +198,13 @@ export default function OracleClient() {
     [phase, cooldownUntil, pools]
   );
 
+  // 문어 클릭 = 예언. 쿨다운 중이면 광고 게이트 모달을 연다.
+  // (idle·summoning·revealed 모든 phase에서 문어는 클릭 가능)
+  const onOcto = useCallback(() => {
+    if (locked) setAdOpen(true);
+    else void summon();
+  }, [locked, summon]);
+
   const onAdDone = useCallback(() => {
     setAdOpen(false);
     void summon(true);
@@ -233,13 +240,36 @@ export default function OracleClient() {
       {/* 문어는 항상 위에 고정 — 결과가 떠 있어도 사라지지 않는다.
           클릭하면 예언 소환(접근성용 버튼은 아래에 별도 유지). */}
       <div
-        className={`octo octo-glow octo-glass w-fit cursor-pointer select-none ${
-          phase === "summoning" ? "animate-octo-shake" : "animate-octo-bob"
+        className={`octo-hero octo-glow octo-glass relative w-fit cursor-pointer select-none ${
+          phase === "summoning" ? "octo-summoning" : "animate-octo-bob"
         }`}
         role="img"
         aria-label="예언가 문어 Tako"
-        onClick={() => void summon()}
+        onClick={onOcto}
       >
+        {/* 소환 중: 넓은 반지름에서 문어 중심으로 수렴하며 문어 뒤(-z-10)로 사라지는 파티클 */}
+        {phase === "summoning" && (
+          <div
+            className="pointer-events-none absolute inset-0 -z-10 overflow-visible"
+            aria-hidden="true"
+          >
+            {SUMMON_PARTICLES.map((p, i) => (
+              <span
+                key={i}
+                className="particle"
+                style={
+                  {
+                    "--dx": `${p.dx}px`,
+                    "--dy": `${p.dy}px`,
+                    animationDelay: `${p.delay}s`,
+                    animationDuration: `${p.duration}s`,
+                  } as CSSProperties
+                }
+              />
+            ))}
+          </div>
+        )}
+
         {/* 메인 이미지 (히어로 전용) — 나머지 문어는 Icon(/octopus.png) 사용 */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -260,7 +290,7 @@ export default function OracleClient() {
           </p>
           <button
             type="button"
-            onClick={() => void summon()}
+            onClick={onOcto}
             className="btn-accent animate-glow-pulse rounded-2xl px-12 py-5 text-xl font-bold shadow-[0_0_40px_rgba(249,115,22,0.45)] transition-transform active:scale-95"
           >
             🔮 예언 받기
@@ -269,100 +299,49 @@ export default function OracleClient() {
       )}
 
       {phase === "summoning" && (
-        <div className="flex w-full max-w-sm flex-col items-center gap-5">
-          <div className="relative w-full">
-            {/* 파티클 레이어 — 카드 '뒤'에서 넓은 영역으로부터 중심으로 수렴 (연출 전용) */}
-            <div
-              className="pointer-events-none absolute inset-0 -z-10 overflow-visible"
-              aria-hidden="true"
-            >
-              {SUMMON_PARTICLES.map((p, i) => (
-                <span
-                  key={i}
-                  className="particle"
-                  style={
-                    {
-                      "--dx": `${p.dx}px`,
-                      "--dy": `${p.dy}px`,
-                      animationDelay: `${p.delay}s`,
-                      animationDuration: `${p.duration}s`,
-                    } as CSSProperties
-                  }
-                />
-              ))}
-            </div>
-
-            {/* 덜덜 떨리는 예언 카드 뒷면 (파티클 위에 위치) */}
-            <div className="animate-rattle surface-solid border-app relative flex min-h-[360px] flex-col items-center justify-center rounded-3xl border p-8">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/octopus.png"
-                alt=""
-                width={72}
-                height={72}
-                className="h-16 w-16"
-              />
-              <span className="txt-accent mt-4 text-sm tracking-[0.3em]">
-                TAKO
-              </span>
-            </div>
-          </div>
-
-          <p
-            key={messageIndex}
-            className="txt-accent animate-fade-up min-h-6 text-center text-base font-medium"
-          >
-            {LOADING_MESSAGES[messageIndex % LOADING_MESSAGES.length]}
-          </p>
-        </div>
+        // 카드 없음 — 문어(커짐+흔들림)와 문어로 모이는 파티클은 위 히어로에서 연출.
+        // 여기서는 로딩 문구만 표시한다.
+        <p
+          key={messageIndex}
+          className="txt-accent animate-fade-up min-h-6 text-center text-base font-medium"
+        >
+          {LOADING_MESSAGES[messageIndex % LOADING_MESSAGES.length]}
+        </p>
       )}
 
       {phase === "revealed" && result && (
         <div className="flex w-full max-w-sm flex-col items-center gap-5">
-          <div className="flip-scene w-full">
-            <div className="flip-inner">
-              {/* 앞면: 카드 뒷면 (플립되며 사라짐) */}
-              <div className="flip-face surface-solid border-app flex min-h-[360px] flex-col items-center justify-center rounded-3xl border p-8">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/octopus.png"
-                  alt=""
-                  width={72}
-                  height={72}
-                  className="h-16 w-16"
-                />
-                <span className="txt-accent mt-4 text-sm tracking-[0.3em]">
-                  TAKO
-                </span>
-              </div>
+          {/* 리빙 순간: 문어 아래 glow 플래시 → 결과 카드가 펼쳐지며 등장 */}
+          <div className="relative w-full">
+            {/* 순간 glow 하이라이트 플래시 (문어 바로 아래, 1회) */}
+            <span className="glow-flash" aria-hidden="true" />
 
-              {/* 뒷면: 결과 */}
-              <div
-                className={`flip-back flex min-h-[360px] flex-col items-center justify-center gap-4 rounded-3xl border p-8 ${
-                  result.side === "LONG"
-                    ? "border-emerald-500/40 bg-emerald-500/10"
-                    : "border-red-500/40 bg-red-500/10"
+            {/* 결과 카드 — 펼쳐지며 등장 (unfold) */}
+            <div
+              className={`reveal-unfold flex min-h-[360px] flex-col items-center justify-center gap-4 rounded-3xl border p-8 ${
+                result.side === "LONG"
+                  ? "border-emerald-500/40 bg-emerald-500/10"
+                  : "border-red-500/40 bg-red-500/10"
+              }`}
+            >
+              {result.luckMode && (
+                <span className="surface txt-warn rounded-full px-3 py-1 text-xs font-medium">
+                  {LUCK_MODE_BADGE}
+                </span>
+              )}
+              <p
+                className={`text-7xl font-black tracking-tight sm:text-8xl ${
+                  result.side === "LONG" ? "txt-long" : "txt-short"
                 }`}
               >
-                {result.luckMode && (
-                  <span className="surface txt-warn rounded-full px-3 py-1 text-xs font-medium">
-                    {LUCK_MODE_BADGE}
-                  </span>
-                )}
-                <p
-                  className={`text-7xl font-black tracking-tight sm:text-8xl ${
-                    result.side === "LONG" ? "txt-long" : "txt-short"
-                  }`}
-                >
-                  {result.side}
-                </p>
-                <p className="txt-strong text-center text-xl font-bold tracking-wide">
-                  {result.ment}
-                </p>
-                <p className="txt-faint mt-2 text-center text-[11px] leading-relaxed">
-                  {DISCLAIMER_CARD}
-                </p>
-              </div>
+                {result.side}
+              </p>
+              <p className="txt-strong text-center text-xl font-bold tracking-wide">
+                {result.ment}
+              </p>
+              <p className="txt-faint mt-2 text-center text-[11px] leading-relaxed">
+                {DISCLAIMER_CARD}
+              </p>
             </div>
           </div>
 

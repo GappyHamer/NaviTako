@@ -10,9 +10,13 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="space-y-8 py-10">
+    <div className="space-y-10 py-10">
       <header className="space-y-2">
-        <h1 className="txt-strong text-2xl font-bold">🐙 {SITE_NAME} 소개</h1>
+        <h1 className="txt-strong flex items-center gap-2 text-2xl font-bold">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/octopus.png" alt="" width={30} height={30} className="h-7 w-7" />
+          {SITE_NAME} 소개
+        </h1>
       </header>
 
       <section className="txt space-y-4 text-sm leading-relaxed">

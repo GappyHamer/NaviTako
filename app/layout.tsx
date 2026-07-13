@@ -95,7 +95,7 @@ export default function RootLayout({
             </aside>
           )}
 
-          <main className="w-full max-w-3xl">{children}</main>
+          <main className="w-full max-w-3xl py-8 sm:py-12">{children}</main>
 
           {/* 우측 세로 광고 */}
           {ADS_ENABLED && (
