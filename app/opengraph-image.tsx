@@ -6,7 +6,7 @@ export const contentType = "image/png";
 export const alt = "롱숏 예언, 재미로 보는 비트코인 롱/숏";
 
 export default async function OgImage() {
-  const title = "따코짱";
+  const title = "타코쨩";
   const tagline = "재미로 보는 비트코인 롱/숏 예언";
   const sub = "예언가 문어 Tako가 오늘의 방향을 찍어드려요";
   const font = await loadNotoSansKR(title + tagline + sub);

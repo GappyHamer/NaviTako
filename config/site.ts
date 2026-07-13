@@ -1,11 +1,13 @@
 /** 사이트 전역 상수 — 이름, URL, 네비게이션, 면책 문구(스펙 3.5 원문) */
 
-export const SITE_NAME = "따코짱";
+export const SITE_NAME = "타코쨩";
+/** 영문 브랜드명 (도메인·해외 노출용) */
+export const SITE_NAME_EN = "TTakochan";
 /** 예언가 마스코트 이름 */
 export const MASCOT_NAME = "Tako";
-export const SITE_TITLE = "따코짱, 재미로 보는 비트코인 롱숏 예언";
+export const SITE_TITLE = "타코쨩(TTakochan), 재미로 보는 비트코인 롱숏 예언";
 export const SITE_DESCRIPTION =
-  "예언가 문어 따코짱(Tako)이 실제 시장 지표로 확률을 기울여 비트코인 롱/숏을 예언하는 오락 사이트입니다. 투자 조언이 아니라 재미로 보는 콘텐츠예요.";
+  "예언가 문어 타코쨩이 실시간 시장 지표로 비트코인 롱·숏을 예언하는 오락 사이트. 재미로 즐기는 콘텐츠예요.";
 
 /** 배포 후 Vercel 환경변수 NEXT_PUBLIC_SITE_URL로 교체 (DEPLOY.md 참조) */
 export const SITE_URL =
