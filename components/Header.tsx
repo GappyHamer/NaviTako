@@ -21,9 +21,16 @@ export default function Header() {
           href="/"
           aria-label={SITE_NAME}
           onClick={() => setOpen(false)}
-          className="text-2xl leading-none transition-transform hover:scale-110 active:scale-95"
+          className="leading-none transition-transform hover:scale-110 active:scale-95"
         >
-          <span aria-hidden>🐙</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/octopus.png"
+            alt="타코쨩"
+            width={28}
+            height={28}
+            className="h-7 w-7"
+          />
         </Link>
 
         <div className="flex items-center gap-1.5">

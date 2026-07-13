@@ -25,7 +25,7 @@ type Phase = "idle" | "summoning" | "revealed";
 /** 소환 시 카드 중심으로 수렴하는 파티클 (반지름 ~150px 원 둘레 분포) */
 const SUMMON_PARTICLES = Array.from({ length: 14 }, (_, i) => {
   const angle = (i / 14) * Math.PI * 2;
-  const radius = 150;
+  const radius = 230;
   return {
     dx: Math.round(Math.cos(angle) * radius),
     dy: Math.round(Math.sin(angle) * radius),
@@ -233,15 +233,22 @@ export default function OracleClient() {
       {/* 문어는 항상 위에 고정 — 결과가 떠 있어도 사라지지 않는다.
           클릭하면 예언 소환(접근성용 버튼은 아래에 별도 유지). */}
       <div
-        className={`octo octo-glow octo-glass select-none text-[7rem] leading-none sm:text-[9rem] ${
+        className={`octo octo-glow octo-glass w-fit cursor-pointer select-none ${
           phase === "summoning" ? "animate-octo-shake" : "animate-octo-bob"
         }`}
         role="img"
         aria-label="예언가 문어 Tako"
         onClick={() => void summon()}
       >
-        {/* TODO: 여기 커스텀 문어 이미지로 교체 예정 */}
-        🐙
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/octopus.png"
+          alt=""
+          width={160}
+          height={160}
+          draggable={false}
+          className="h-28 w-28 select-none sm:h-40 sm:w-40"
+        />
       </div>
 
       {phase === "idle" && (
@@ -263,9 +270,24 @@ export default function OracleClient() {
       {phase === "summoning" && (
         <div className="flex w-full max-w-sm flex-col items-center gap-5">
           <div className="relative w-full">
-            {/* 파티클 레이어 — 카드 중심으로 수렴 (연출 전용) */}
+            {/* 덜덜 떨리는 예언 카드 뒷면 (flip-back과 동일 톤) */}
+            <div className="animate-rattle surface-solid border-app flex min-h-[360px] flex-col items-center justify-center rounded-3xl border p-8">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/octopus.png"
+                alt=""
+                width={72}
+                height={72}
+                className="h-16 w-16"
+              />
+              <span className="txt-accent mt-4 text-sm tracking-[0.3em]">
+                TAKO
+              </span>
+            </div>
+
+            {/* 파티클 레이어 — 카드 위에서 바깥→중심으로 수렴 (카드보다 위, 연출 전용) */}
             <div
-              className="pointer-events-none absolute inset-0"
+              className="pointer-events-none absolute inset-0 z-20"
               aria-hidden="true"
             >
               {SUMMON_PARTICLES.map((p, i) => (
@@ -282,14 +304,6 @@ export default function OracleClient() {
                   }
                 />
               ))}
-            </div>
-
-            {/* 덜덜 떨리는 예언 카드 뒷면 (flip-back과 동일 톤) */}
-            <div className="animate-rattle surface-solid border-app flex min-h-[360px] flex-col items-center justify-center rounded-3xl border p-8">
-              <span className="text-6xl">🐙</span>
-              <span className="txt-accent mt-4 text-sm tracking-[0.3em]">
-                TAKO
-              </span>
             </div>
           </div>
 
@@ -308,7 +322,14 @@ export default function OracleClient() {
             <div className="flip-inner">
               {/* 앞면: 카드 뒷면 (플립되며 사라짐) */}
               <div className="flip-face surface-solid border-app flex min-h-[360px] flex-col items-center justify-center rounded-3xl border p-8">
-                <span className="text-6xl">🐙</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/octopus.png"
+                  alt=""
+                  width={72}
+                  height={72}
+                  className="h-16 w-16"
+                />
                 <span className="txt-accent mt-4 text-sm tracking-[0.3em]">
                   TAKO
                 </span>

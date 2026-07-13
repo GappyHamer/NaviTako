@@ -28,7 +28,15 @@ export default function Footer() {
           {DISCLAIMER_FOOTER}
         </p>
         <p className="txt-faint text-[11px]">
-          © {new Date().getFullYear()} {SITE_NAME} 🐙
+          © {new Date().getFullYear()} {SITE_NAME}{" "}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/octopus.png"
+            alt="타코쨩"
+            width={16}
+            height={16}
+            className="inline-block h-4 w-4 align-text-bottom"
+          />
         </p>
       </div>
     </footer>
