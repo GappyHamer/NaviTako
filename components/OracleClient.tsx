@@ -23,14 +23,14 @@ import { playSound } from "@/lib/sound";
 type Phase = "idle" | "summoning" | "revealed";
 
 /** 소환 시 카드 중심으로 수렴하는 파티클 (반지름 ~150px 원 둘레 분포) */
-const SUMMON_PARTICLES = Array.from({ length: 14 }, (_, i) => {
-  const angle = (i / 14) * Math.PI * 2;
-  const radius = 230;
+const SUMMON_PARTICLES = Array.from({ length: 16 }, (_, i) => {
+  const angle = (i / 16) * Math.PI * 2 + (i % 3) * 0.15;
+  const radius = 260 + (i % 4) * 35; // 260~365px, 넓은 영역에서 응집
   return {
     dx: Math.round(Math.cos(angle) * radius),
     dy: Math.round(Math.sin(angle) * radius),
-    delay: Number(((i % 5) * 0.12).toFixed(2)),
-    duration: Number((1 + (i % 3) * 0.25).toFixed(2)),
+    delay: Number(((i % 6) * 0.1).toFixed(2)),
+    duration: Number((1.15 + (i % 3) * 0.22).toFixed(2)),
   };
 });
 
@@ -270,24 +270,9 @@ export default function OracleClient() {
       {phase === "summoning" && (
         <div className="flex w-full max-w-sm flex-col items-center gap-5">
           <div className="relative w-full">
-            {/* 덜덜 떨리는 예언 카드 뒷면 (flip-back과 동일 톤) */}
-            <div className="animate-rattle surface-solid border-app flex min-h-[360px] flex-col items-center justify-center rounded-3xl border p-8">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/octopus.png"
-                alt=""
-                width={72}
-                height={72}
-                className="h-16 w-16"
-              />
-              <span className="txt-accent mt-4 text-sm tracking-[0.3em]">
-                TAKO
-              </span>
-            </div>
-
-            {/* 파티클 레이어 — 카드 위에서 바깥→중심으로 수렴 (카드보다 위, 연출 전용) */}
+            {/* 파티클 레이어 — 카드 '뒤'에서 넓은 영역으로부터 중심으로 수렴 (연출 전용) */}
             <div
-              className="pointer-events-none absolute inset-0 z-20"
+              className="pointer-events-none absolute inset-0 -z-10 overflow-visible"
               aria-hidden="true"
             >
               {SUMMON_PARTICLES.map((p, i) => (
@@ -304,6 +289,21 @@ export default function OracleClient() {
                   }
                 />
               ))}
+            </div>
+
+            {/* 덜덜 떨리는 예언 카드 뒷면 (파티클 위에 위치) */}
+            <div className="animate-rattle surface-solid border-app relative flex min-h-[360px] flex-col items-center justify-center rounded-3xl border p-8">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/octopus.png"
+                alt=""
+                width={72}
+                height={72}
+                className="h-16 w-16"
+              />
+              <span className="txt-accent mt-4 text-sm tracking-[0.3em]">
+                TAKO
+              </span>
             </div>
           </div>
 

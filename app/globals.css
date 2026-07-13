@@ -51,6 +51,7 @@ body {
     -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard",
     "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* 연출 파티클이 넓게 퍼져도 가로 스크롤 방지 */
 }
 
 /* ---------- 시맨틱 색상/표면 유틸 (unlayered → tailwind 유틸보다 우선) ---------- */
@@ -81,11 +82,17 @@ body {
 }
 
 .surface {
+  /* raw backdrop-filter 는 Lightning CSS 가 드롭 → Tailwind 유틸리티로 적용 */
+  @apply backdrop-blur-md backdrop-saturate-150;
   background-color: var(--card);
   border: 1px solid var(--border);
+  box-shadow:
+    0 10px 34px -14px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .surface-solid {
   background-color: var(--card-solid);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 .border-app {
   border-color: var(--border);
@@ -100,8 +107,9 @@ body {
 }
 
 .app-header {
-  background-color: color-mix(in oklab, var(--bg) 82%, transparent);
+  background-color: color-mix(in oklab, var(--bg) 70%, transparent);
   border-bottom: 1px solid var(--border);
+  /* 블러는 마크업의 backdrop-blur 유틸리티가 담당 (raw 속성은 드롭됨) */
 }
 
 .btn-accent {
@@ -111,6 +119,15 @@ body {
     color-mix(in oklab, var(--accent) 60%, #d946ef)
   );
   color: #fff;
+  box-shadow: 0 6px 22px -8px color-mix(in oklab, var(--accent) 75%, transparent);
+  transition:
+    filter 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+}
+.btn-accent:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 10px 28px -8px color-mix(in oklab, var(--accent) 85%, transparent);
 }
 
 /* ---------- 문어 연출 (transform/opacity만 사용 → 60fps) ---------- */
@@ -246,6 +263,24 @@ body {
 /* 문어/카드 아래 글래스 질감 그림자 (바닥에 은은히 깔리는 발광 타원) */
 .octo-glass {
   position: relative;
+}
+/* 문어 뒤 은은한 액센트 후광 (히어로 깊이감) */
+.octo-glass::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 150%;
+  height: 150%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 20%, transparent) 0%,
+    transparent 60%
+  );
+  filter: blur(8px);
+  z-index: -1;
+  pointer-events: none;
 }
 .octo-glass::after {
   content: "";
