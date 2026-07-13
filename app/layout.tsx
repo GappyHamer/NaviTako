@@ -10,6 +10,14 @@ import {
   SITE_URL,
 } from "@/config/site";
 
+// 검색엔진 소유확인 메타태그 (네이버 서치어드바이저 / Bing). Vercel 환경변수가
+// 있을 때만 <head>에 삽입된다. NAVER_SITE_VERIFICATION / BING_SITE_VERIFICATION.
+const verificationOther: Record<string, string> = {};
+if (process.env.NAVER_SITE_VERIFICATION)
+  verificationOther["naver-site-verification"] = process.env.NAVER_SITE_VERIFICATION;
+if (process.env.BING_SITE_VERIFICATION)
+  verificationOther["msvalidate.01"] = process.env.BING_SITE_VERIFICATION;
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -39,6 +47,9 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
   },
   robots: { index: true, follow: true },
+  ...(Object.keys(verificationOther).length > 0
+    ? { verification: { other: verificationOther } }
+    : {}),
 };
 
 export const viewport: Viewport = {
