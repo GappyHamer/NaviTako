@@ -15,7 +15,7 @@ export default function Gauge({
   value,
   leftLabel,
   rightLabel,
-  barClassName = "bg-violet-500",
+  barClassName = "bg-orange-500",
 }: GaugeProps) {
   const pct = value === null ? 0 : Math.min(100, Math.max(0, value));
 

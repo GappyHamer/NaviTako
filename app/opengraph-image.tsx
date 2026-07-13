@@ -64,7 +64,7 @@ export default async function OgImage() {
           />
         </div>
 
-        <div style={{ display: "flex", fontSize: 38, color: "#a78bfa" }}>
+        <div style={{ display: "flex", fontSize: 38, color: "#fdba74" }}>
           {font ? tagline : "Bitcoin Long/Short, just for fun"}
         </div>
         <div

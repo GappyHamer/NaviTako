@@ -43,7 +43,7 @@ export default async function OgImage({
             alignItems: "center",
             gap: 14,
             fontSize: 34,
-            color: "#a78bfa",
+            color: "#fdba74",
             letterSpacing: 3,
             marginBottom: 8,
           }}
@@ -103,7 +103,7 @@ export default async function OgImage({
         >
           <span>{font ? cta : "Your call?"}</span>
           <span style={{ color: "#5b21b6" }}>◆</span>
-          <span style={{ color: "#a78bfa" }}>{handle}</span>
+          <span style={{ color: "#fdba74" }}>{handle}</span>
         </div>
       </div>
     ),

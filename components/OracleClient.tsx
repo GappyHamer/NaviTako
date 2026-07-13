@@ -261,7 +261,7 @@ export default function OracleClient() {
           <button
             type="button"
             onClick={() => void summon()}
-            className="btn-accent animate-glow-pulse rounded-2xl px-12 py-5 text-xl font-bold shadow-[0_0_40px_rgba(139,92,246,0.45)] transition-transform active:scale-95"
+            className="btn-accent animate-glow-pulse rounded-2xl px-12 py-5 text-xl font-bold shadow-[0_0_40px_rgba(249,115,22,0.45)] transition-transform active:scale-95"
           >
             🔮 예언 받기
           </button>

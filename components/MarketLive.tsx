@@ -182,7 +182,7 @@ export default function MarketLive({ initial }: { initial: MarketData }) {
                 value={ratioToLongPct(indicators.globalRatio)}
                 leftLabel="숏 우세"
                 rightLabel="롱 우세"
-                barClassName="bg-fuchsia-500"
+                barClassName="bg-orange-500"
               />
               <p className="txt-faint text-xs leading-relaxed">
                 전체 계정의 롱/숏 쏠림이에요. 개인 투자자 비중이 커서 군중 심리로

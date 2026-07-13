@@ -70,7 +70,7 @@ export default async function ResultPage({
       </p>
       <Link
         href="/"
-        className="btn-accent rounded-2xl px-10 py-4 text-lg font-bold shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-transform active:scale-95"
+        className="btn-accent rounded-2xl px-10 py-4 text-lg font-bold shadow-[0_0_30px_rgba(249,115,22,0.4)] transition-transform active:scale-95"
       >
         🔮 나도 예언 받기
       </Link>
