@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import {
   computeReading,
   currentLabel,
@@ -17,8 +18,21 @@ import {
   type KeywordPools,
 } from "@/config/keywords";
 import AdSlot from "@/components/AdSlot";
+import { playSound } from "@/lib/sound";
 
 type Phase = "idle" | "summoning" | "revealed";
+
+/** 소환 시 카드 중심으로 수렴하는 파티클 (반지름 ~150px 원 둘레 분포) */
+const SUMMON_PARTICLES = Array.from({ length: 14 }, (_, i) => {
+  const angle = (i / 14) * Math.PI * 2;
+  const radius = 150;
+  return {
+    dx: Math.round(Math.cos(angle) * radius),
+    dy: Math.round(Math.sin(angle) * radius),
+    delay: Number(((i % 5) * 0.12).toFixed(2)),
+    duration: Number((1 + (i % 3) * 0.25).toFixed(2)),
+  };
+});
 
 type OracleResult = {
   side: OracleSide;
@@ -132,7 +146,9 @@ export default function OracleClient() {
       if (phase === "summoning") return;
       if (!viaAd && cooldownUntil !== null && cooldownUntil > Date.now()) return;
 
+      playSound("click");
       setPhase("summoning");
+      playSound("summon");
       setCopied(false);
       setMessageIndex(0);
 
@@ -177,6 +193,7 @@ export default function OracleClient() {
         // 저장 실패해도 화면 표시는 정상 동작
       }
       setPhase("revealed");
+      playSound("reveal");
     },
     [phase, cooldownUntil, pools]
   );
@@ -213,14 +230,17 @@ export default function OracleClient() {
       className="flex flex-col items-center gap-8 py-8"
       aria-live="polite"
     >
-      {/* 문어는 항상 위에 고정 — 결과가 떠 있어도 사라지지 않는다 */}
+      {/* 문어는 항상 위에 고정 — 결과가 떠 있어도 사라지지 않는다.
+          클릭하면 예언 소환(접근성용 버튼은 아래에 별도 유지). */}
       <div
-        className={`octo select-none text-[7rem] leading-none sm:text-[9rem] ${
+        className={`octo octo-glow octo-glass select-none text-[7rem] leading-none sm:text-[9rem] ${
           phase === "summoning" ? "animate-octo-shake" : "animate-octo-bob"
         }`}
         role="img"
         aria-label="예언가 문어 Tako"
+        onClick={() => void summon()}
       >
+        {/* TODO: 여기 커스텀 문어 이미지로 교체 예정 */}
         🐙
       </div>
 
@@ -241,12 +261,45 @@ export default function OracleClient() {
       )}
 
       {phase === "summoning" && (
-        <p
-          key={messageIndex}
-          className="txt-accent animate-fade-up min-h-6 text-center text-base font-medium"
-        >
-          {LOADING_MESSAGES[messageIndex % LOADING_MESSAGES.length]}
-        </p>
+        <div className="flex w-full max-w-sm flex-col items-center gap-5">
+          <div className="relative w-full">
+            {/* 파티클 레이어 — 카드 중심으로 수렴 (연출 전용) */}
+            <div
+              className="pointer-events-none absolute inset-0"
+              aria-hidden="true"
+            >
+              {SUMMON_PARTICLES.map((p, i) => (
+                <span
+                  key={i}
+                  className="particle"
+                  style={
+                    {
+                      "--dx": `${p.dx}px`,
+                      "--dy": `${p.dy}px`,
+                      animationDelay: `${p.delay}s`,
+                      animationDuration: `${p.duration}s`,
+                    } as CSSProperties
+                  }
+                />
+              ))}
+            </div>
+
+            {/* 덜덜 떨리는 예언 카드 뒷면 (flip-back과 동일 톤) */}
+            <div className="animate-rattle surface-solid border-app flex min-h-[360px] flex-col items-center justify-center rounded-3xl border p-8">
+              <span className="text-6xl">🐙</span>
+              <span className="txt-accent mt-4 text-sm tracking-[0.3em]">
+                TAKO
+              </span>
+            </div>
+          </div>
+
+          <p
+            key={messageIndex}
+            className="txt-accent animate-fade-up min-h-6 text-center text-base font-medium"
+          >
+            {LOADING_MESSAGES[messageIndex % LOADING_MESSAGES.length]}
+          </p>
+        </div>
       )}
 
       {phase === "revealed" && result && (
