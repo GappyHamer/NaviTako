@@ -30,3 +30,6 @@ yarn-error.log*
 
 # bkit state
 .bkit/
+
+# 디자인 원본(PSD 등) — 저장소 제외
+resource/

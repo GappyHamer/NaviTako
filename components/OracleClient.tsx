@@ -240,9 +240,10 @@ export default function OracleClient() {
         aria-label="예언가 문어 Tako"
         onClick={() => void summon()}
       >
+        {/* 메인 이미지 (히어로 전용) — 나머지 문어는 Icon(/octopus.png) 사용 */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/octopus.png"
+          src="/octopus-main.png"
           alt=""
           width={160}
           height={160}
