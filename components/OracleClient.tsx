@@ -388,8 +388,8 @@ export default function OracleClient() {
                 </button>
               </div>
               <p className="txt-faint text-center text-[10px]">
-                하루 한 번의 예언이 원칙이에요. 더 궁금하면 광고를 보고 바로 받을
-                수 있어요.
+                하루 한 번의 예언이 원칙이에요. 더 궁금하면 지금 바로 받을 수도
+                있어요.
               </p>
             </div>
           ) : (
@@ -416,7 +416,7 @@ export default function OracleClient() {
             href="/predict"
             className="border-app surface txt flex w-full items-center justify-center gap-1.5 rounded-xl border px-5 py-3 text-sm font-semibold transition-colors hover:opacity-80"
           >
-            🔮 이번엔 내가 직접 예언하기 →
+            🔮 내가 직접 예언하기 →
           </Link>
         </div>
       )}
@@ -451,7 +451,7 @@ function AdGateModal({
       className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      aria-label="광고 보고 예언 받기"
+      aria-label="지금 바로 예언 받기"
       onClick={onClose}
     >
       <div
@@ -459,7 +459,7 @@ function AdGateModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <p className="txt-strong text-sm font-bold">⚡ 광고 보고 바로 받기</p>
+          <p className="txt-strong text-sm font-bold">⚡ 지금 바로 받기</p>
           <button
             type="button"
             onClick={onClose}
@@ -470,7 +470,7 @@ function AdGateModal({
           </button>
         </div>
         <p className="txt-muted mt-2 text-xs leading-relaxed">
-          짧은 광고를 보면 24시간을 기다리지 않고 지금 바로 예언을 받을 수
+          잠깐만 기다리면 24시간을 기다리지 않고 지금 바로 예언을 받을 수
           있어요.
         </p>
 
