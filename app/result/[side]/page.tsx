@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { DISCLAIMER_CARD, SITE_NAME } from "@/config/site";
+import { DISCLAIMER_CARD, SITE_NAME, SITE_URL } from "@/config/site";
 
 type Params = { side: string };
 
@@ -13,20 +13,33 @@ export function generateStaticParams(): Params[] {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<{ k?: string }>;
 }): Promise<Metadata> {
   const { side } = await params;
+  const k = (await searchParams).k ?? "";
   const isLong = side === "long";
   const title = isLong ? "Tako의 예언: LONG 📈" : "Tako의 예언: SHORT 📉";
   const description = `예언가 문어 Tako가 오늘의 비트코인 예언으로 ${
     isLong ? "롱" : "숏"
   }을 내렸어요. 당신의 예언도 받아보세요. (재미로 보는 오락 콘텐츠)`;
+  const ogImg = `${SITE_URL}/api/og?side=${side}&k=${encodeURIComponent(k)}`;
   return {
     title,
     description,
-    openGraph: { title: `${title} | ${SITE_NAME}`, description },
-    twitter: { card: "summary_large_image", title, description },
+    openGraph: {
+      title: `${title} | ${SITE_NAME}`,
+      description,
+      images: [{ url: ogImg, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImg],
+    },
   };
 }
 

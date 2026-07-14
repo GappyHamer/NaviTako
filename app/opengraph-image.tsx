@@ -22,7 +22,7 @@ export default async function OgImage() {
           alignItems: "center",
           justifyContent: "center",
           background:
-            "radial-gradient(900px 500px at 50% 0%, #241452 0%, #0b0f1a 62%)",
+            "radial-gradient(900px 500px at 50% 0%, #2a1a0b 0%, #0b0f1a 62%)",
           fontFamily: font ? "NotoSansKR" : "sans-serif",
         }}
       >
@@ -75,7 +75,7 @@ export default async function OgImage() {
             marginTop: 16,
           }}
         >
-          {font ? sub : "navi-tako.vercel.app"}
+          {font ? sub : "ttakochan.com"}
         </div>
       </div>
     ),

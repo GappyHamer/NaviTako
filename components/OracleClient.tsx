@@ -292,7 +292,7 @@ export default function OracleClient() {
 
   const share = useCallback(async () => {
     if (!result) return;
-    const url = `${location.origin}/result/${result.side.toLowerCase()}`;
+    const url = `${location.origin}/result/${result.side.toLowerCase()}?k=${encodeURIComponent(result.ment)}`;
     const text = `🐙 예언가 Tako의 오늘 예언: ${result.side}! ${result.ment}`;
 
     if (typeof navigator.share === "function") {
