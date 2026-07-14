@@ -10,6 +10,9 @@ import {
   SITE_URL,
 } from "@/config/site";
 
+/** 검색 결과에 노출할 대표 사이트명 (Google site name / og:site_name) */
+const SITE_NAME_SEARCH = "TTAKOCHAN";
+
 // 검색엔진 소유확인 메타태그 (네이버 서치어드바이저 / Bing). Vercel 환경변수가
 // 있을 때만 <head>에 삽입된다. NAVER_SITE_VERIFICATION / BING_SITE_VERIFICATION.
 const verificationOther: Record<string, string> = {};
@@ -37,7 +40,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    siteName: SITE_NAME,
+    siteName: SITE_NAME_SEARCH,
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
@@ -64,10 +67,21 @@ export const viewport: Viewport = {
 const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: SITE_NAME,
+  name: SITE_NAME_SEARCH,
+  alternateName: SITE_NAME,
   url: SITE_URL,
   description: SITE_DESCRIPTION,
   inLanguage: "ko",
+};
+
+/** 브랜드/로고 신호 — 검색 결과 프로필(로고)·대표명에 활용 */
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME_SEARCH,
+  alternateName: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}/octopus.png`,
 };
 
 /** 다크 기본. 사용자가 라이트를 고른 적이 있을 때만 라이트로. 페인트 전 실행 → 깜빡임 없음 */
@@ -82,7 +96,9 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([websiteJsonLd, organizationJsonLd]),
+          }}
         />
         <Header />
         <div className="mx-auto flex w-full max-w-[1400px] flex-1 justify-center gap-6 px-4">
