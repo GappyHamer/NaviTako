@@ -46,11 +46,48 @@ type OracleResult = {
 const SUMMON_MS = 2600;
 /** 로딩 문구 교체 주기 */
 const MESSAGE_INTERVAL_MS = 800;
-/** 예언 쿨다운 15분 */
-const COOLDOWN_MS = 15 * 60 * 1000;
+/** 첫 예언 쿨다운 30분 — 예언할수록 2배씩(1h·2h·4h…) 늘어난다. */
+const BASE_COOLDOWN_MS = 30 * 60 * 1000;
+/** '지금 바로 받기'(쿨다운 건너뛰기) 하루 허용 횟수 (자정 초기화) */
+const MAX_SKIPS_PER_DAY = 3;
+/** KST(UTC+9) 오프셋 */
+const KST_OFFSET = 9 * 60 * 60 * 1000;
 
 const LS_RESULT = "tako:lastResult";
 const LS_UNTIL = "tako:cooldownUntil";
+const LS_DAY = "tako:day"; // 카운트 기준 날짜(KST)
+const LS_DRAW = "tako:drawCount"; // 오늘 예언 횟수 → 쿨다운 에스컬레이션
+const LS_SKIP = "tako:skipCount"; // 오늘 '지금 바로 받기' 사용 횟수
+
+/** KST 기준 날짜 키 (YYYY-MM-DD) */
+function kstDayKey(now: number): string {
+  return new Date(now + KST_OFFSET).toISOString().slice(0, 10);
+}
+/** 다음 KST 자정(ms) — 쿨다운이 하루를 넘기면 이 시각으로 고정 */
+function nextKstMidnight(now: number): number {
+  const kst = now + KST_OFFSET;
+  return (Math.floor(kst / 86400000) + 1) * 86400000 - KST_OFFSET;
+}
+/** 오늘(KST) 예언 횟수 */
+function drawsToday(): number {
+  try {
+    return localStorage.getItem(LS_DAY) === kstDayKey(Date.now())
+      ? Number(localStorage.getItem(LS_DRAW)) || 0
+      : 0;
+  } catch {
+    return 0;
+  }
+}
+/** 오늘(KST) '지금 바로 받기' 사용 횟수 */
+function skipsUsedToday(): number {
+  try {
+    return localStorage.getItem(LS_DAY) === kstDayKey(Date.now())
+      ? Number(localStorage.getItem(LS_SKIP)) || 0
+      : 0;
+  } catch {
+    return 0;
+  }
+}
 
 async function fetchIndicators(): Promise<{
   indicators: MarketIndicators;
@@ -87,6 +124,8 @@ export default function OracleClient() {
   const [nowTs, setNowTs] = useState(0);
   const [adOpen, setAdOpen] = useState(false);
   const [pools, setPools] = useState<KeywordPools>(SEED_POOLS);
+  const [drawCount, setDrawCount] = useState(0); // 오늘 예언 횟수 (쿨다운 에스컬레이션)
+  const [skipCount, setSkipCount] = useState(0); // 오늘 '지금 바로 받기' 사용 횟수
   const timersRef = useRef<{ interval?: ReturnType<typeof setInterval> }>({});
   const mountedRef = useRef(true);
 
@@ -104,6 +143,16 @@ export default function OracleClient() {
         setCooldownUntil(until);
         setNowTs(Date.now());
       }
+      // 오늘 카운트 복원 (자정 지났으면 리셋)
+      const today = kstDayKey(Date.now());
+      if (localStorage.getItem(LS_DAY) === today) {
+        setDrawCount(Number(localStorage.getItem(LS_DRAW)) || 0);
+        setSkipCount(Number(localStorage.getItem(LS_SKIP)) || 0);
+      } else {
+        localStorage.setItem(LS_DAY, today);
+        localStorage.setItem(LS_DRAW, "0");
+        localStorage.setItem(LS_SKIP, "0");
+      }
     } catch {
       // 저장소 접근 불가 → 그냥 새로 뽑을 수 있는 상태로 시작
     }
@@ -116,7 +165,22 @@ export default function OracleClient() {
   // 쿨다운 카운트다운 1초 틱
   useEffect(() => {
     if (cooldownUntil === null) return;
-    const tick = () => setNowTs(Date.now());
+    const tick = () => {
+      const n = Date.now();
+      setNowTs(n);
+      // 자정 지나면 카운트 초기화 (페이지 열어둔 채 넘어가는 경우)
+      try {
+        if (localStorage.getItem(LS_DAY) !== kstDayKey(n)) {
+          localStorage.setItem(LS_DAY, kstDayKey(n));
+          localStorage.setItem(LS_DRAW, "0");
+          localStorage.setItem(LS_SKIP, "0");
+          setDrawCount(0);
+          setSkipCount(0);
+        }
+      } catch {
+        // 저장소 접근 불가 → 무시
+      }
+    };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
@@ -146,6 +210,8 @@ export default function OracleClient() {
     async (viaAd = false) => {
       if (phase === "summoning") return;
       if (!viaAd && cooldownUntil !== null && cooldownUntil > Date.now()) return;
+      // '지금 바로 받기'(viaAd)는 하루 MAX_SKIPS_PER_DAY 회까지만
+      if (viaAd && skipsUsedToday() >= MAX_SKIPS_PER_DAY) return;
 
       playSound("click");
       setPhase("summoning");
@@ -175,7 +241,13 @@ export default function OracleClient() {
         label: currentLabel(reading.S),
         luckMode: allFailed || reading.luckMode,
       };
-      const until = Date.now() + COOLDOWN_MS;
+      // 에스컬레이션 쿨다운 + 카운트 (localStorage 최신값으로 stale 방지)
+      const now = Date.now();
+      const today = kstDayKey(now);
+      const newDraw = drawsToday() + 1;
+      const newSkip = viaAd ? skipsUsedToday() + 1 : skipsUsedToday();
+      const cdMs = BASE_COOLDOWN_MS * Math.pow(2, newDraw - 1); // 30m·1h·2h·4h…
+      const until = Math.min(now + cdMs, nextKstMidnight(now)); // 24h/자정 넘기면 자정 고정
 
       // Phase 2: 예언 분포·적중률 집계에 기록 (실패해도 UI에는 영향 없음)
       void fetch("/api/stats/record", {
@@ -186,10 +258,15 @@ export default function OracleClient() {
 
       setResult(res);
       setCooldownUntil(until);
-      setNowTs(Date.now());
+      setNowTs(now);
+      setDrawCount(newDraw);
+      setSkipCount(newSkip);
       try {
         localStorage.setItem(LS_RESULT, JSON.stringify(res));
         localStorage.setItem(LS_UNTIL, String(until));
+        localStorage.setItem(LS_DAY, today);
+        localStorage.setItem(LS_DRAW, String(newDraw));
+        localStorage.setItem(LS_SKIP, String(newSkip));
       } catch {
         // 저장 실패해도 화면 표시는 정상 동작
       }
@@ -202,9 +279,11 @@ export default function OracleClient() {
   // 문어 클릭 = 예언. 쿨다운 중이면 광고 게이트 모달을 연다.
   // (idle·summoning·revealed 모든 phase에서 문어는 클릭 가능)
   const onOcto = useCallback(() => {
-    if (locked) setAdOpen(true);
-    else void summon();
-  }, [locked, summon]);
+    if (locked) {
+      // 쿨다운 중 → 바로받기 남아 있으면 게이트 열기 (소진 시 무시)
+      if (skipCount < MAX_SKIPS_PER_DAY) setAdOpen(true);
+    } else void summon();
+  }, [locked, skipCount, summon]);
 
   const onAdDone = useCallback(() => {
     setAdOpen(false);
@@ -372,13 +451,15 @@ export default function OracleClient() {
                 </span>
               </p>
               <div className="flex flex-wrap justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setAdOpen(true)}
-                  className="btn-accent rounded-xl px-5 py-2.5 text-sm font-semibold transition-transform active:scale-95"
-                >
-                  ⚡ 지금 바로 받기
-                </button>
+                {skipCount < MAX_SKIPS_PER_DAY && (
+                  <button
+                    type="button"
+                    onClick={() => setAdOpen(true)}
+                    className="btn-accent rounded-xl px-5 py-2.5 text-sm font-semibold transition-transform active:scale-95"
+                  >
+                    ⚡ 지금 바로 받기 ({MAX_SKIPS_PER_DAY - skipCount}회 남음)
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={share}
@@ -388,8 +469,9 @@ export default function OracleClient() {
                 </button>
               </div>
               <p className="txt-faint text-center text-[10px]">
-                예언 사이엔 잠깐의 텀이 있어요. 더 궁금하면 지금 바로 받을 수도
-                있어요.
+                {skipCount < MAX_SKIPS_PER_DAY
+                  ? "예언할수록 다음 텀이 조금씩 길어져요. 바로받기는 하루 3번(자정 초기화)."
+                  : "오늘 바로받기를 다 썼어요. 자정에 다시 채워져요."}
               </p>
             </div>
           ) : (
