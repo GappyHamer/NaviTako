@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
+import Link from "next/link";
 import {
   computeReading,
   currentLabel,
@@ -409,6 +410,14 @@ export default function OracleClient() {
               </button>
             </div>
           )}
+
+          {/* 예언하기 페이지로 유도 (내가 직접 예언 + 리더보드) */}
+          <Link
+            href="/predict"
+            className="border-app surface txt flex w-full items-center justify-center gap-1.5 rounded-xl border px-5 py-3 text-sm font-semibold transition-colors hover:opacity-80"
+          >
+            🔮 이번엔 내가 직접 예언하기 →
+          </Link>
         </div>
       )}
 
