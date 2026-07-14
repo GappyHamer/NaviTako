@@ -46,8 +46,8 @@ type OracleResult = {
 const SUMMON_MS = 2600;
 /** 로딩 문구 교체 주기 */
 const MESSAGE_INTERVAL_MS = 800;
-/** 예언 쿨다운 24시간 */
-const COOLDOWN_MS = 24 * 60 * 60 * 1000;
+/** 예언 쿨다운 15분 */
+const COOLDOWN_MS = 15 * 60 * 1000;
 
 const LS_RESULT = "tako:lastResult";
 const LS_UNTIL = "tako:cooldownUntil";
@@ -75,7 +75,7 @@ function formatRemaining(ms: number): string {
   const h = Math.floor(total / 3600);
   const m = Math.floor((total % 3600) / 60);
   const s = total % 60;
-  return `${h}시간 ${m}분 ${s}초`;
+  return h > 0 ? `${h}시간 ${m}분 ${s}초` : `${m}분 ${s}초`;
 }
 
 export default function OracleClient() {
@@ -388,7 +388,7 @@ export default function OracleClient() {
                 </button>
               </div>
               <p className="txt-faint text-center text-[10px]">
-                하루 한 번의 예언이 원칙이에요. 더 궁금하면 지금 바로 받을 수도
+                예언 사이엔 잠깐의 텀이 있어요. 더 궁금하면 지금 바로 받을 수도
                 있어요.
               </p>
             </div>
@@ -470,7 +470,7 @@ function AdGateModal({
           </button>
         </div>
         <p className="txt-muted mt-2 text-xs leading-relaxed">
-          잠깐만 기다리면 24시간을 기다리지 않고 지금 바로 예언을 받을 수
+          잠깐만 기다리면 쿨다운 없이 지금 바로 예언을 받을 수
           있어요.
         </p>
 
