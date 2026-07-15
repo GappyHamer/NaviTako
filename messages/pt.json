@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "home": "Oráculo",
+    "predict": "Prever",
+    "market": "Clima do mercado",
+    "guide": "Guia",
+    "about": "Sobre"
+  },
+  "hero": {
+    "subtitle": "O lendário oráculo Tako lê o mercado em tempo real e solta uma única previsão — long ou short.",
+    "cta": "Receber previsão"
+  },
+  "footer": {
+    "about": "Sobre",
+    "guide": "Guia",
+    "privacy": "Política de Privacidade",
+    "disclaimer": "Aviso Legal",
+    "contact": "Contato",
+    "copyright": "Conteúdo apenas para diversão"
+  },
+  "lang": {
+    "label": "Idioma"
+  }
+}

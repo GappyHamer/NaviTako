@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { DISCLAIMER_CARD, SITE_NAME, SITE_URL } from "@/config/site";
 
-type Params = { side: string };
+type Params = { locale: string; side: string };
 
 export const dynamicParams = false;
 
-export function generateStaticParams(): Params[] {
+export function generateStaticParams(): { side: string }[] {
   return [{ side: "long" }, { side: "short" }];
 }
 
@@ -48,7 +49,9 @@ export default async function ResultPage({
 }: {
   params: Promise<Params>;
 }) {
-  const { side } = await params;
+  const { locale, side } = await params;
+  setRequestLocale(locale);
+
   if (side !== "long" && side !== "short") notFound();
   const isLong = side === "long";
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { DISCLAIMER_CARD, DISCLAIMER_FOOTER, SITE_NAME } from "@/config/site";
 
 export const metadata: Metadata = {
@@ -7,7 +8,14 @@ export const metadata: Metadata = {
     "롱숏 예언은 오락 목적의 콘텐츠를 제공하며 투자 자문을 하지 않습니다. 서비스 이용 전 면책조항을 꼭 확인해 주세요.",
 };
 
-export default function DisclaimerPage() {
+export default async function DisclaimerPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <div className="space-y-8 py-10">
       <header className="space-y-2">

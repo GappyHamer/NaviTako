@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { getAllGuideMeta } from "@/lib/guide";
 
 export const metadata: Metadata = {
@@ -8,7 +9,14 @@ export const metadata: Metadata = {
     "공포탐욕지수, 펀딩비, 롱숏비율부터 레버리지의 수학까지. Tako가 예언에 쓰는 시장 지표를 쉽게 풀어쓴 교육 콘텐츠 모음이에요.",
 };
 
-export default function GuidePage() {
+export default async function GuidePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   const guides = getAllGuideMeta();
 
   return (

@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import {
   computeReading,
   currentLabel,
@@ -116,6 +117,7 @@ function formatRemaining(ms: number): string {
 }
 
 export default function OracleClient() {
+  const tHero = useTranslations("hero");
   const [phase, setPhase] = useState<Phase>("idle");
   const [messageIndex, setMessageIndex] = useState(0);
   const [result, setResult] = useState<OracleResult | null>(null);
@@ -381,15 +383,14 @@ export default function OracleClient() {
       {phase === "idle" && (
         <>
           <p className="txt-muted max-w-md text-center text-sm leading-relaxed">
-            전설의 예언가 Tako가 실시간으로 시장을 읽고 롱숏, 단 하나의 예언을
-            내려줍니다.
+            {tHero("subtitle")}
           </p>
           <button
             type="button"
             onClick={onOcto}
             className="btn-accent animate-glow-pulse rounded-2xl px-12 py-5 text-xl font-bold shadow-[0_0_40px_rgba(249,115,22,0.45)] transition-transform active:scale-95"
           >
-            🔮 예언 받기
+            🔮 {tHero("cta")}
           </button>
         </>
       )}

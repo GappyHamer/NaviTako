@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import AdSlot from "@/components/AdSlot";
 import { DISCLAIMER_GUIDE } from "@/config/site";
 import { getAllGuideMeta, getGuideArticle, getGuideSlugs } from "@/lib/guide";
 
-type Params = { slug: string };
+type Params = { locale: string; slug: string };
 
 export const dynamicParams = false;
 
-export function generateStaticParams(): Params[] {
+export function generateStaticParams(): { slug: string }[] {
   return getGuideSlugs().map((slug) => ({ slug }));
 }
 
@@ -33,7 +34,9 @@ export default async function GuideArticlePage({
 }: {
   params: Promise<Params>;
 }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
+
   const article = getGuideArticle(slug);
   if (!article) notFound();
 

@@ -1,13 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { NAV_TABS, SITE_NAME } from "@/config/site";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
+import { SITE_NAME } from "@/config/site";
 import ThemeToggle from "@/components/ThemeToggle";
+import LangSwitcher from "@/components/LangSwitcher";
+
+/** 내비 탭 — 라벨은 useTranslations('nav') 로 번역, href 는 그대로. */
+const NAV_TABS = [
+  { href: "/", key: "home" },
+  { href: "/predict", key: "predict" },
+  { href: "/market", key: "market" },
+  { href: "/guide", key: "guide" },
+  { href: "/about", key: "about" },
+] as const;
 
 export default function Header() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
 
   const isActive = (href: string) =>
@@ -48,13 +59,14 @@ export default function Header() {
                         : "txt-muted hover:opacity-80"
                     }`}
                   >
-                    {tab.label}
+                    {t(tab.key)}
                   </Link>
                 </li>
               ))}
             </ul>
           </nav>
 
+          <LangSwitcher />
           <ThemeToggle />
 
           {/* 모바일: 햄버거 버튼 */}
@@ -89,7 +101,7 @@ export default function Header() {
                       : "txt-muted hover:opacity-80"
                   }`}
                 >
-                  {tab.label}
+                  {t(tab.key)}
                 </Link>
               </li>
             ))}

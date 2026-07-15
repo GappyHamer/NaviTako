@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { SITE_NAME } from "@/config/site";
 
 export const metadata: Metadata = {
@@ -8,7 +9,14 @@ export const metadata: Metadata = {
     "롱숏 예언은 실제 시장 지표로 확률을 살짝 기울여 비트코인 롱/숏을 예언하는 오락 사이트입니다. 만든 이유와 작동 원리를 소개해요.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <div className="space-y-10 py-10">
       <header className="space-y-2">

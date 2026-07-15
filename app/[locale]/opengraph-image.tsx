@@ -1,9 +1,14 @@
 import { ImageResponse } from "next/og";
 import { loadNotoSansKR } from "@/lib/og-font";
+import { routing } from "@/i18n/routing";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt = "롱숏 예언, 재미로 보는 비트코인 롱/숏";
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
 
 export default async function OgImage() {
   const title = "타코쨩";

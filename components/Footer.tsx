@@ -1,16 +1,19 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import SocialLinks from "@/components/SocialLinks";
 import { DISCLAIMER_FOOTER, SITE_NAME } from "@/config/site";
 
 const FOOTER_LINKS = [
-  { href: "/about", label: "소개" },
-  { href: "/guide", label: "가이드" },
-  { href: "/privacy", label: "개인정보처리방침" },
-  { href: "/disclaimer", label: "면책조항" },
-  { href: "/contact", label: "문의" },
+  { href: "/about", key: "about" },
+  { href: "/guide", key: "guide" },
+  { href: "/privacy", key: "privacy" },
+  { href: "/disclaimer", key: "disclaimer" },
+  { href: "/contact", key: "contact" },
 ] as const;
 
 export default function Footer() {
+  const t = useTranslations("footer");
+
   return (
     <footer className="border-app mt-16 border-t px-4 py-8">
       <div className="mx-auto max-w-3xl space-y-6 text-center">
@@ -20,7 +23,7 @@ export default function Footer() {
             {FOOTER_LINKS.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className="hover:opacity-80">
-                  {link.label}
+                  {t(link.key)}
                 </Link>
               </li>
             ))}

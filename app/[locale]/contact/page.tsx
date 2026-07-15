@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { SITE_NAME } from "@/config/site";
 import { contactBotEnabled } from "@/lib/telegram";
 import ContactForm from "@/components/ContactForm";
@@ -10,7 +11,14 @@ export const metadata: Metadata = {
     "롱숏 예언에 대한 제안, 오류 제보, 광고·제휴 문의를 받는 페이지예요.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <div className="space-y-8 py-10">
       <header className="space-y-2">

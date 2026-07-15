@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "home": "Oracle",
+    "predict": "Predict",
+    "market": "Market Mood",
+    "guide": "Guide",
+    "about": "About"
+  },
+  "hero": {
+    "subtitle": "The legendary oracle Tako reads the market in real time and drops one single call — long or short.",
+    "cta": "Get your call"
+  },
+  "footer": {
+    "about": "About",
+    "guide": "Guide",
+    "privacy": "Privacy Policy",
+    "disclaimer": "Disclaimer",
+    "contact": "Contact",
+    "copyright": "For entertainment only"
+  },
+  "lang": {
+    "label": "Language"
+  }
+}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import AdSlot from "@/components/AdSlot";
 import MarketLive from "@/components/MarketLive";
 import { getMarketData } from "@/lib/market";
@@ -12,7 +13,14 @@ export const metadata: Metadata = {
     "공포탐욕지수, 펀딩비, 롱숏비율, 24시간 모멘텀까지. Tako가 예언에 쓰는 실제 시장 지표를 게이지로 한눈에 봅니다. 60초마다 자동으로 갱신되는 교육용 시각화예요.",
 };
 
-export default async function MarketPage() {
+export default async function MarketPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   const data = await getMarketData();
 
   return (

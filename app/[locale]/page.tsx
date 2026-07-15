@@ -1,9 +1,17 @@
-import Link from "next/link";
+import { setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import OracleClient from "@/components/OracleClient";
 import AccuracyWidget from "@/components/AccuracyWidget";
 import HeroTitle from "@/components/HeroTitle";
 
-export default function HomePage() {
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <div className="flex flex-col items-stretch gap-8 sm:gap-12">
       <HeroTitle />

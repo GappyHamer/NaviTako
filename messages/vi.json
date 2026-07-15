@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "home": "Tiên tri",
+    "predict": "Dự đoán",
+    "market": "Nhiệt độ thị trường",
+    "guide": "Hướng dẫn",
+    "about": "Giới thiệu"
+  },
+  "hero": {
+    "subtitle": "Nhà tiên tri huyền thoại Tako đọc thị trường theo thời gian thực và phán một lời duy nhất — long hay short.",
+    "cta": "Nhận lời tiên tri"
+  },
+  "footer": {
+    "about": "Giới thiệu",
+    "guide": "Hướng dẫn",
+    "privacy": "Chính sách bảo mật",
+    "disclaimer": "Miễn trừ trách nhiệm",
+    "contact": "Liên hệ",
+    "copyright": "Nội dung chỉ để giải trí"
+  },
+  "lang": {
+    "label": "Ngôn ngữ"
+  }
+}

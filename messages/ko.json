@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "home": "예언",
+    "predict": "예언하기",
+    "market": "시장온도",
+    "guide": "가이드",
+    "about": "소개"
+  },
+  "hero": {
+    "subtitle": "전설의 예언가 Tako가 실시간으로 시장을 읽고 롱숏, 단 하나의 예언을 내려줍니다.",
+    "cta": "예언 받기"
+  },
+  "footer": {
+    "about": "소개",
+    "guide": "가이드",
+    "privacy": "개인정보처리방침",
+    "disclaimer": "면책조항",
+    "contact": "문의",
+    "copyright": "오락용 콘텐츠입니다"
+  },
+  "lang": {
+    "label": "언어"
+  }
+}

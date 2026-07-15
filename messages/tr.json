@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "home": "Kehanet",
+    "predict": "Tahmin Et",
+    "market": "Piyasa Havası",
+    "guide": "Rehber",
+    "about": "Hakkında"
+  },
+  "hero": {
+    "subtitle": "Efsanevi kâhin Tako piyasayı canlı okur ve tek bir kehanet verir — long mu short mu.",
+    "cta": "Kehanetini Al"
+  },
+  "footer": {
+    "about": "Hakkında",
+    "guide": "Rehber",
+    "privacy": "Gizlilik Politikası",
+    "disclaimer": "Sorumluluk Reddi",
+    "contact": "İletişim",
+    "copyright": "Yalnızca eğlence amaçlıdır"
+  },
+  "lang": {
+    "label": "Dil"
+  }
+}

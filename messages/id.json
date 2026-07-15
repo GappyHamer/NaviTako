@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "home": "Ramalan",
+    "predict": "Prediksi",
+    "market": "Suasana Pasar",
+    "guide": "Panduan",
+    "about": "Tentang"
+  },
+  "hero": {
+    "subtitle": "Sang peramal legendaris Tako membaca pasar secara real-time dan memberi satu ramalan saja — long atau short.",
+    "cta": "Terima Ramalan"
+  },
+  "footer": {
+    "about": "Tentang",
+    "guide": "Panduan",
+    "privacy": "Kebijakan Privasi",
+    "disclaimer": "Penafian",
+    "contact": "Kontak",
+    "copyright": "Konten hanya untuk hiburan"
+  },
+  "lang": {
+    "label": "Bahasa"
+  }
+}
