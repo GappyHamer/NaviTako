@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SocialLinks from "@/components/SocialLinks";
 import { DISCLAIMER_FOOTER, SITE_NAME } from "@/config/site";
 
 const FOOTER_LINKS = [
@@ -12,7 +13,8 @@ const FOOTER_LINKS = [
 export default function Footer() {
   return (
     <footer className="border-app mt-16 border-t px-4 py-8">
-      <div className="mx-auto max-w-3xl space-y-4 text-center">
+      <div className="mx-auto max-w-3xl space-y-6 text-center">
+        <SocialLinks />
         <nav aria-label="푸터 메뉴">
           <ul className="txt-muted flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
             {FOOTER_LINKS.map((link) => (

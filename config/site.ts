@@ -40,3 +40,10 @@ export const DISCLAIMER_FOOTER =
 /** 가이드 글 말미 고정 문구 (스펙 3.4) */
 export const DISCLAIMER_GUIDE =
   "본 콘텐츠는 교육·오락 목적이며 투자 조언이 아닙니다.";
+
+/** 커뮤니티/소셜 계정 (푸터 카드). type: 아이콘 종류, isNew: NEW 뱃지 */
+export const SOCIAL_LINKS = [
+  { name: "김공수", url: "https://x.com/GongsuKim", type: "x", isNew: true },
+  { name: "난 모르겠다 이제", url: "https://t.me/x125lever", type: "telegram", isNew: false },
+  { name: "쥬사모", url: "https://t.me/chatjudylee", type: "telegram", isNew: false },
+] as const;
