@@ -1,0 +1,54 @@
+{
+  "oracle": {
+    "octoAria": "Bạch tuộc tiên tri Tako",
+    "luckBadge": "Hôm nay là chế độ hên xui 100% 🎲",
+    "disclaimerCard": "Kết quả này chỉ mang tính giải trí, không phải lời khuyên hay khuyến nghị đầu tư. Mọi quyết định đầu tư và trách nhiệm hoàn toàn thuộc về bạn.",
+    "again": "Xin tiên tri lại",
+    "share": "Chia sẻ kết quả",
+    "copied": "Đã sao chép!",
+    "shareText": "Tiên tri hôm nay của Tako: {side}! {ment}",
+    "shareTitle": "Tiên Tri Long Short",
+    "predictSelf": "Tự mình tiên tri",
+    "cooldown": {
+      "until": "Đến lượt tiên tri kế tiếp",
+      "hms": "{h} giờ {m} phút {s} giây",
+      "ms": "{m} phút {s} giây",
+      "help": "Càng xin tiên tri nhiều, thời gian chờ lại dài thêm một chút. Nhận ngay được {n} lần/ngày (reset lúc nửa đêm).",
+      "exhausted": "Hôm nay bạn đã dùng hết lượt nhận ngay rồi. Sẽ được làm mới vào nửa đêm."
+    },
+    "skip": {
+      "now": "Nhận ngay bây giờ",
+      "remaining": "Nhận ngay bây giờ (còn {n} lần)"
+    },
+    "ad": {
+      "title": "Nhận ngay bây giờ",
+      "aria": "Nhận tiên tri ngay bây giờ",
+      "close": "Đóng",
+      "desc": "Chỉ cần đợi một chút, bạn có thể nhận tiên tri ngay mà không cần chờ cooldown.",
+      "confirm": "Nhận tiên tri ngay",
+      "wait": "Còn {n} giây nữa là nhận được"
+    },
+    "accuracy": {
+      "title": "Bảng thành tích tiên tri của Tako (chỉ để vui thôi)",
+      "sectionAria": "Bảng thành tích tiên tri Tako",
+      "distribution": "Phân bố tiên tri hôm nay",
+      "totalCount": "Tổng {n} lượt",
+      "aggregating": "Đang tổng hợp",
+      "refresh": "Làm mới",
+      "longPct": "Long {n}%",
+      "shortPct": "Short {n}%",
+      "waitingFirst": "Đang chờ lượt tiên tri đầu tiên trong ngày.",
+      "win": {
+        "1h": "Giờ",
+        "1d": "Ngày",
+        "1w": "Tuần",
+        "1mo": "Tháng",
+        "1y": "Năm",
+        "all": "Tất cả"
+      },
+      "hitSummary": "Trúng {hits}/{total} lượt tiên tri",
+      "previewNote": "Khi dữ liệu tích lũy đủ nhiều, đây sẽ thành thành tích thật (hiện tại chỉ là bản xem trước)",
+      "disclaimer": "* Đây là thống kê giải trí, chỉ tính xem hướng dự đoán tại thời điểm tiên tri có đúng hay không. Không liên quan đến lợi nhuận thực tế, và đừng quên lời tiên tri của bạch tuộc chẳng khác gì tung đồng xu."
+    }
+  }
+}

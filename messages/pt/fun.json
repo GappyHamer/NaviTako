@@ -1,0 +1,58 @@
+{
+  "fun": {
+    "heroTitles": [
+      "Hoje o Bitcoin vai de long ou short?",
+      "Segurar ou realizar o prejuízo, eis a questão",
+      "Para de ficar olhando o gráfico e pergunta pro Tako",
+      "Decidir no chute não rola, deixa pros tentáculos do polvo",
+      "Preparado pra mais um dia pegando fogo no vermelho?",
+      "Deus das criptos não existe, mas o polvo existe",
+      "Sua posição de hoje quem escolhe é o polvo",
+      "Long? Short? O polvo já tem tudo planejado",
+      "Entre o pump e o dump, o polvo está bem no meio",
+      "Uma profecia que talvez seja mais precisa que horóscopo",
+      "Esquece o medo da liquidação, só se prepara pra rir",
+      "Pensar demais só leva à liquidação, primeiro pergunta pro polvo",
+      "Bitcoin ninguém entende direito, mas o polvo entende (talvez)",
+      "Carteira leve, coração tranquilo"
+    ],
+    "loading": [
+      "Lendo os indicadores...",
+      "Espiando a posição das baleias...",
+      "Sentindo o cheiro de medo e ganância...",
+      "Medindo a temperatura da funding rate...",
+      "Contando os passos das formiguinhas...",
+      "Espirrando tinta no gráfico...",
+      "Batendo o ábaco com oito tentáculos...",
+      "Sentindo as correntes das profundezas..."
+    ],
+    "kwSubjects": [
+      "Elon", "baleia", "institucionais", "formiguinha", "manada", "FED", "Powell", "Nasdaq", "prêmio kimchi", "Satoshi",
+      "Trump", "ETF", "investidor gringo", "mercado futuro", "pregão americano", "mineradores", "smart money", "on-chain", "comunidade", "Twitter",
+      "CZ", "Binance", "Mercado Bitcoin", "Coinbase", "BlackRock", "MicroStrategy", "Michael Saylor", "Vitalik", "Justin Sun", "Yellen",
+      "SEC", "fundo hedge", "mercado de opções", "mapa de liquidação", "grupo de sinais", "youtuber", "influencer", "DeFi", "Tether", "ETF spot",
+      "halving", "fazenda de mineração", "brasileiro fora do país", "super baleia", "novo listado", "deslistado", "Grayscale", "tubarão", "formiguinha presa", "peixe grande"
+    ],
+    "kwSentimentLong": [
+      "alta", "pump", "bull run", "disparada", "rompimento", "nova máxima", "repique", "liquidação de short", "acumulação", "hodl vitorioso",
+      "foguete", "tendência de alta", "golden cross", "compra em pânico", "euforia", "vai pumpar", "disparo", "bombando", "vela verde", "luz verde",
+      "realizar lucro", "saiu do fundo", "comprou no fundo", "pra lua", "to the moon", "parabólico", "superciclo", "temporada de altcoin", "gap de alta", "vela verde forte",
+      "muro de compra", "alta explosiva", "limite de alta", "comprou sem pensar", "all in", "comprou mais", "foguetório", "moeda 10x", "os touros", "comprou na queda",
+      "manada acumulando", "formiguinha ganhou", "subida relâmpago", "lucro gordo", "rali de alta"
+    ],
+    "kwSentimentShort": [
+      "baixa", "dump", "mercado de urso", "correção", "pânico", "medo", "liquidação", "despencou", "stop loss", "repique de gato morto",
+      "tendência de baixa", "death cross", "venda em massa", "preso na posição", "choque", "vai dumpar", "inferno", "porão", "luz vermelha", "vela vermelha forte",
+      "liquidação de long", "crash", "limite de baixa", "venda em pânico", "comprou pra baixar a média", "hodl forçado", "comprou no topo", "preso no topo", "perdeu metade", "corrida bancária",
+      "rug pull", "golpe", "vai deslistar", "vendeu com a notícia", "muro de venda", "cemitério das formiguinhas", "choro geral", "patrimônio negativo", "gap de baixa", "quer sumir do mapa",
+      "zerou a conta", "chamada de margem", "liquidação forçada", "otário", "lágrimas"
+    ],
+    "kwTargets": [
+      "Bitcoin", "Ethereum", "Dogecoin", "Ripple", "Solana", "Shiba", "Pepe", "Cardano", "Tron", "Bonk",
+      "Polkadot", "Avalanche", "Chainlink", "Litecoin", "Near", "Aptos", "Sui", "memecoin", "altcoin", "shitcoin",
+      "Polygon", "Cosmos", "Algorand", "Stellar", "Bitcoin Cash", "Ethereum Classic", "Filecoin", "Hedera", "Injective", "Sei",
+      "Celestia", "Wif", "Floki", "Maker", "Uniswap", "Aave", "Sandbox", "Decentraland", "Gala", "Arbitrum",
+      "Optimism", "Starknet", "Render", "The Graph", "Toncoin", "Notcoin", "Jupiter", "Pi Network", "Wormhole", "Movement"
+    ]
+  }
+}

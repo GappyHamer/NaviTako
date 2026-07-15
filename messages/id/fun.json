@@ -1,0 +1,58 @@
+{
+  "fun": {
+    "heroTitles": [
+      "Bitcoin hari ini, long atau short ya?",
+      "Hodl atau cut loss, itulah pertanyaannya",
+      "Udah, jangan melototin chart terus, tanya Tako aja",
+      "Kalau nebak-nebak doang kayaknya kurang mantap, biar tentakel yang tentuin",
+      "Siap-siap portofolio merah lagi hari ini?",
+      "Dewa kripto emang gak ada, tapi gurita ada",
+      "Posisi kamu hari ini ditentukan gurita",
+      "Long? Short? Si gurita udah punya rencana",
+      "Di antara pump dan dump, ada seekor gurita berdiri",
+      "Ramalan yang mungkin lebih akurat dari zodiak harian",
+      "Bukan siap-siap kena margin call, siap-siap senyum aja",
+      "Kebanyakan mikir cuma bikin kena likuidasi, mending tanya gurita dulu",
+      "Bitcoin aja gak tahu, tapi gurita tahu (mungkin)",
+      "Dompet boleh tipis, yang penting hati senang"
+    ],
+    "loading": [
+      "Lagi baca indikator...",
+      "Lagi ngintip posisi paus...",
+      "Lagi cium aroma fear and greed...",
+      "Lagi ukur suhu funding rate...",
+      "Lagi hitung jejak investor ritel...",
+      "Lagi nyiprat tinta ke chart...",
+      "Lagi mainin sempoa pakai delapan tentakel...",
+      "Lagi rasain arus dari palung laut dalam..."
+    ],
+    "kwSubjects": [
+      "Elon", "Paus", "Institusi", "Investor ritel", "Bandar", "The Fed", "Powell", "Nasdaq", "Premi bursa", "Satoshi",
+      "Trump", "ETF", "Investor asing", "Order book futures", "Sesi Amerika", "Penambang", "Smart money", "Data on-chain", "Komunitas", "Crypto Twitter",
+      "CZ", "Binance", "Bybit", "OKX", "Coinbase", "BlackRock", "MicroStrategy", "Michael Saylor", "Vitalik", "Justin Sun",
+      "Yellen", "SEC", "Hedge fund", "Order book opsi", "Peta likuidasi", "Grup pump", "Youtuber", "Influencer", "DeFi", "Tether",
+      "Spot ETF", "Halving", "Tambang crypto", "Insider misterius", "Investor kakap", "Listing baru", "Delisting", "Grayscale", "Pemain besar", "Investor buntung"
+    ],
+    "kwSentimentLong": [
+      "Bullish", "Pump", "Pasar bullish", "Gaskeun", "Breakout", "All-time high", "Rebound", "Short squeeze", "Akumulasi", "Kemenangan hodler",
+      "Roket", "Uptrend", "Golden cross", "Panic buying", "Euforia", "Siap meledak", "Shooting", "Pumping", "Candle hijau", "Sinyal hijau",
+      "Ambil untung", "Keluar dari dasar", "Beli di bawah", "Ke bulan", "To the moon", "Kenaikan parabolik", "Super cycle", "Musim altcoin", "Gap naik", "Candle hijau besar",
+      "Tembok beli", "Melejit", "Batas atas", "Beli tanpa mikir", "All-in beli", "Nambah posisi", "Kembang api kemenangan", "Ten bagger", "Investor bullish", "Beli saat koreksi",
+      "Akumulasi bandar", "Kemenangan investor ritel", "Naik secepat kilat", "Cuan gede", "Reli kenaikan"
+    ],
+    "kwSentimentShort": [
+      "Bearish", "Dump", "Pasar bearish", "Koreksi", "Panik", "Ketakutan", "Likuidasi", "Pullback", "Cut loss", "Dead cat bounce",
+      "Downtrend", "Death cross", "Jual besar-besaran", "Kejebak posisi", "Suasana panik", "Siap ambruk", "Dasar jebol", "Basement", "Sinyal merah", "Candle merah besar",
+      "Long squeeze", "Ambruk", "Batas bawah", "Panic selling", "Nyicil rugi", "Hodl sambil nangis", "Puncak sebelum jatuh", "Kejebak di atas", "Rugi separuh", "Kabur dari koin",
+      "Rug pull", "Scam", "Ambang delisting", "Jual pas ada berita", "Tembok jual", "Kuburan investor ritel", "Rintihan komunitas", "Modal tergerus", "Gap turun", "Bencana total",
+      "Zonk", "Margin call", "Likuidasi paksa", "Apes", "Air mata"
+    ],
+    "kwTargets": [
+      "Bitcoin", "Ethereum", "Dogecoin", "Ripple", "Solana", "Shiba", "Pepe", "Cardano", "Tron", "Bonk",
+      "Polkadot", "Avalanche", "Chainlink", "Litecoin", "Near", "Aptos", "Sui", "Meme coin", "Altcoin", "Altcoin gorengan",
+      "Polygon", "Cosmos", "Algorand", "Stellar", "Bitcoin Cash", "Ethereum Classic", "Filecoin", "Hedera", "Injective", "Sei",
+      "Celestia", "WIF", "Floki", "Maker", "Uniswap", "Aave", "Sandbox", "Decentraland", "Gala", "Arbitrum",
+      "Optimism", "StarkNet", "Render", "The Graph", "Toncoin", "Notcoin", "Jupiter", "Pi Coin", "Wormhole", "Movement"
+    ]
+  }
+}

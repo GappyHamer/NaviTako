@@ -1,0 +1,58 @@
+{
+  "fun": {
+    "heroTitles": [
+      "¿Hoy Bitcoin va de long o de short?",
+      "Aguantar o cortar pérdidas, esa es la cuestión",
+      "Deja de mirar el gráfico y pregúntale a Tako",
+      "Decidir a ojo no es buena idea, mejor que decidan los tentáculos",
+      "¿Listo para quemarte en rojo otra vez hoy?",
+      "Dios de las criptos no existe, pero el pulpo sí",
+      "Tu posición de hoy la elige el pulpo",
+      "¿Long? ¿Short? El pulpo ya tiene todo planeado",
+      "Entre el pump y el dump, el pulpo se planta en el medio",
+      "Una profecía que quizás sea más precisa que el horóscopo",
+      "Olvida el miedo a la liquidación, solo prepárate para reír",
+      "Pensar de más solo trae liquidación, mejor pregúntale al pulpo primero",
+      "Nadie entiende bien a Bitcoin, pero el pulpo sí (tal vez)",
+      "Billetera liviana, corazón tranquilo"
+    ],
+    "loading": [
+      "Leyendo los indicadores...",
+      "Espiando la posición de las ballenas...",
+      "Oliendo el miedo y la codicia...",
+      "Midiendo la temperatura del funding rate...",
+      "Contando las huellas de los peces pequeños...",
+      "Salpicando tinta sobre el gráfico...",
+      "Calculando con ábaco usando ocho tentáculos...",
+      "Sintiendo las corrientes del fondo del mar..."
+    ],
+    "kwSubjects": [
+      "Elon", "ballena", "institucionales", "pez pequeño", "manada", "la Fed", "Powell", "Nasdaq", "prima kimchi", "Satoshi",
+      "Trump", "ETF", "inversores extranjeros", "mercado de futuros", "sesión de EE.UU.", "mineros", "dinero inteligente", "on-chain", "comunidad", "Twitter",
+      "CZ", "Binance", "Bitso", "Coinbase", "BlackRock", "MicroStrategy", "Michael Saylor", "Vitalik", "Justin Sun", "Yellen",
+      "SEC", "fondo de cobertura", "mercado de opciones", "mapa de liquidaciones", "grupo de señales", "youtuber", "influencer", "DeFi", "Tether", "ETF spot",
+      "halving", "granja de minería", "expatriado", "ballena gigante", "nueva cotización", "deslistado", "Grayscale", "pez gordo", "pez pequeño atrapado", "gran jugador"
+    ],
+    "kwSentimentLong": [
+      "alza", "pump", "mercado alcista", "subidón", "ruptura", "nuevo máximo", "rebote", "liquidación de shorts", "acumulación", "aguante ganador",
+      "cohete", "tendencia alcista", "cruce dorado", "compra por pánico", "euforia", "va a pumpear", "disparo", "bombeando", "vela verde", "luz verde",
+      "tomar ganancias", "salió del fondo", "compró en el fondo", "a la luna", "to the moon", "parabólico", "superciclo", "temporada de altcoins", "gap al alza", "vela verde grande",
+      "muro de compra", "subida explosiva", "límite superior", "compró sin pensar", "todo adentro", "compró más", "fuegos artificiales", "moneda 10x", "los alcistas", "compró en la caída",
+      "la manada acumula", "ganó el pez pequeño", "subida relámpago", "ganancia jugosa", "rally alcista"
+    ],
+    "kwSentimentShort": [
+      "baja", "dump", "mercado bajista", "corrección", "pánico", "miedo", "liquidación", "se desplomó", "stop loss", "rebote del gato muerto",
+      "tendencia bajista", "cruce de la muerte", "venta masiva", "atrapado", "shock", "va a dumpear", "infierno", "sótano", "luz roja", "vela roja grande",
+      "liquidación de longs", "colapso", "límite inferior", "venta por pánico", "promediar a la baja", "aguante forzado", "compró en el techo", "atrapado en el techo", "perdió la mitad", "corrida bancaria",
+      "rug pull", "estafa", "va a ser deslistado", "vendió con la noticia", "muro de venta", "cementerio de peces pequeños", "llanto colectivo", "patrimonio negativo", "gap a la baja", "quiere desaparecer del mapa",
+      "cuenta en cero", "llamada de margen", "liquidación forzada", "incauto", "lágrimas"
+    ],
+    "kwTargets": [
+      "Bitcoin", "Ethereum", "Dogecoin", "Ripple", "Solana", "Shiba", "Pepe", "Cardano", "Tron", "Bonk",
+      "Polkadot", "Avalanche", "Chainlink", "Litecoin", "Near", "Aptos", "Sui", "memecoin", "altcoin", "shitcoin",
+      "Polygon", "Cosmos", "Algorand", "Stellar", "Bitcoin Cash", "Ethereum Classic", "Filecoin", "Hedera", "Injective", "Sei",
+      "Celestia", "Wif", "Floki", "Maker", "Uniswap", "Aave", "Sandbox", "Decentraland", "Gala", "Arbitrum",
+      "Optimism", "Starknet", "Render", "The Graph", "Toncoin", "Notcoin", "Jupiter", "Pi Network", "Wormhole", "Movement"
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "oracle": {
+    "octoAria": "Polvo oráculo Tako",
+    "luckBadge": "Hoje é modo sorte pura 🎲",
+    "disclaimerCard": "Este resultado é apenas conteúdo de entretenimento, não é recomendação nem consultoria de investimento. Toda decisão de investimento e sua responsabilidade são exclusivamente suas.",
+    "again": "Receber outra profecia",
+    "share": "Compartilhar resultado",
+    "copied": "Copiado!",
+    "shareText": "A profecia de hoje do Tako: {side}! {ment}",
+    "shareTitle": "Oráculo Long Short",
+    "predictSelf": "Fazer minha própria previsão",
+    "cooldown": {
+      "until": "Até a próxima profecia",
+      "hms": "{h}h {m}min {s}s",
+      "ms": "{m}min {s}s",
+      "help": "Quanto mais você pede profecias, mais o intervalo vai aumentando aos poucos. O recebimento imediato tem {n} usos por dia (reinicia à meia-noite).",
+      "exhausted": "Você já usou todos os recebimentos imediatos de hoje. Renovam à meia-noite."
+    },
+    "skip": {
+      "now": "Receber agora mesmo",
+      "remaining": "Receber agora mesmo ({n} restantes)"
+    },
+    "ad": {
+      "title": "Receber agora mesmo",
+      "aria": "Receber a profecia agora mesmo",
+      "close": "Fechar",
+      "desc": "Espere só um pouquinho e você pode receber a profecia agora mesmo, sem esperar o cooldown.",
+      "confirm": "Receber a profecia agora",
+      "wait": "Disponível em {n}s"
+    },
+    "accuracy": {
+      "title": "Boletim (só por diversão) das profecias do Tako",
+      "sectionAria": "Boletim de profecias do Tako",
+      "distribution": "Distribuição das profecias de hoje",
+      "totalCount": "{n} no total",
+      "aggregating": "Calculando",
+      "refresh": "Atualizar",
+      "longPct": "Long {n}%",
+      "shortPct": "Short {n}%",
+      "waitingFirst": "Esperando a primeira profecia do dia.",
+      "win": {
+        "1h": "Hora",
+        "1d": "Dia",
+        "1w": "Semana",
+        "1mo": "Mês",
+        "1y": "Ano",
+        "all": "Tudo"
+      },
+      "hitSummary": "{hits} acertos em {total} profecias",
+      "previewNote": "Conforme os dados acumulam, isso vira uma pontuação de verdade (por enquanto é só uma prévia)",
+      "disclaimer": "* Esta é uma estatística de entretenimento que só verifica se a direção acertou em relação ao preço no momento da profecia. Não tem relação com retorno real, e nunca esqueça que a profecia do polvo é basicamente cara ou coroa."
+    }
+  }
+}

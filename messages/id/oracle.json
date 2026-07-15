@@ -1,0 +1,54 @@
+{
+  "oracle": {
+    "octoAria": "Gurita Peramal Tako",
+    "luckBadge": "Hari ini mode hoki murni 🎲",
+    "disclaimerCard": "Hasil ini adalah konten hiburan, bukan ajakan atau nasihat investasi. Semua keputusan investasi dan tanggung jawabnya ada di tanganmu sendiri.",
+    "again": "Minta ramalan lagi",
+    "share": "Bagikan hasil",
+    "copied": "Disalin!",
+    "shareText": "Ramalan Tako hari ini: {side}! {ment}",
+    "shareTitle": "Ramalan Long-Short",
+    "predictSelf": "Ramal sendiri",
+    "cooldown": {
+      "until": "Sampai ramalan berikutnya",
+      "hms": "{h} jam {m} menit {s} detik",
+      "ms": "{m} menit {s} detik",
+      "help": "Makin sering minta ramalan, jeda berikutnya makin lama. Ambil-langsung tersedia {n} kali sehari (reset tengah malam).",
+      "exhausted": "Jatah ambil-langsung hari ini sudah habis. Akan terisi lagi saat tengah malam."
+    },
+    "skip": {
+      "now": "Ambil sekarang juga",
+      "remaining": "Ambil sekarang (sisa {n}x)"
+    },
+    "ad": {
+      "title": "Ambil sekarang juga",
+      "aria": "Ambil ramalan sekarang juga",
+      "close": "Tutup",
+      "desc": "Tunggu sebentar, kamu bisa langsung dapat ramalan sekarang tanpa harus menunggu cooldown.",
+      "confirm": "Ambil ramalan sekarang",
+      "wait": "Bisa diambil dalam {n} detik"
+    },
+    "accuracy": {
+      "title": "Rapor ramalan Tako (buat seru-seruan)",
+      "sectionAria": "Rapor ramalan Tako",
+      "distribution": "Distribusi ramalan hari ini",
+      "totalCount": "Total {n}x",
+      "aggregating": "Sedang dihitung",
+      "refresh": "Muat ulang",
+      "longPct": "Long {n}%",
+      "shortPct": "Short {n}%",
+      "waitingFirst": "Menunggu ramalan pertama hari ini.",
+      "win": {
+        "1h": "jam",
+        "1d": "hari",
+        "1w": "minggu",
+        "1mo": "bulan",
+        "1y": "tahun",
+        "all": "semua"
+      },
+      "hitSummary": "Tepat {hits} dari {total} ramalan",
+      "previewNote": "Kalau datanya makin banyak, ini akan jadi rekor asli (sekarang masih pratinjau)",
+      "disclaimer": "* Statistik hiburan yang menghitung apakah arah tebakan sesuai dengan pergerakan harga sejak ramalan dibuat. Tidak mencerminkan keuntungan nyata, dan jangan lupa ramalan si gurita ini mirip lempar koin."
+    }
+  }
+}

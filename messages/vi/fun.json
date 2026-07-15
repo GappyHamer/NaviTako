@@ -1,0 +1,58 @@
+{
+  "fun": {
+    "heroTitles": [
+      "Bitcoin hôm nay long hay short đây?",
+      "Ôm hàng hay cắt lỗ, đó là câu hỏi muôn thuở",
+      "Đừng nhìn chart nữa, hỏi Tako cho lành",
+      "Đoán mò thì hơi kỳ, để xúc tu bạch tuộc quyết giùm",
+      "Hôm nay đã sẵn sàng cháy tài khoản chưa?",
+      "Thần coin thì không có, nhưng bạch tuộc thì có",
+      "Vị thế hôm nay của bạn, để bạch tuộc chọn giùm",
+      "Long? Short? Bạch tuộc đều có kế hoạch cả rồi",
+      "Giữa pump và dump, bạch tuộc đứng chính giữa",
+      "Tiên tri này có khi còn chuẩn hơn xem tử vi",
+      "Đừng chuẩn bị tinh thần cháy tài khoản, chỉ cần chuẩn bị cười thôi",
+      "Suy nghĩ nhiều chỉ tổ bị thanh lý, cứ hỏi bạch tuộc trước đã",
+      "Không rành Bitcoin cũng chẳng sao, bạch tuộc rành là được (chắc vậy)",
+      "Ví thì nhẹ tênh, tâm hồn thì thư thái"
+    ],
+    "loading": [
+      "Đang đọc chỉ số...",
+      "Đang rình xem cá mập đặt lệnh gì...",
+      "Đang ngửi mùi sợ hãi và tham lam...",
+      "Đang đo nhiệt độ funding rate...",
+      "Đang đếm dấu chân của cá lẹp...",
+      "Đang phun mực lên chart...",
+      "Đang gảy bàn tính bằng tám cái xúc tu...",
+      "Đang cảm nhận luồng khí dưới đáy biển sâu..."
+    ],
+    "kwSubjects": [
+      "Elon", "cá voi", "tổ chức lớn", "cá lẹp", "phe làm giá", "FED", "Powell", "Nasdaq", "kimchi premium", "Satoshi",
+      "Trump", "ETF", "Phố Wall", "sàn futures", "phiên Mỹ", "thợ đào", "smart money", "on-chain", "cộng đồng", "Twitter",
+      "CZ", "Binance", "Upbit", "Bithumb", "Coinbase", "BlackRock", "MicroStrategy", "Michael Saylor", "Vitalik", "Justin Sun",
+      "Yellen", "SEC", "quỹ phòng hộ", "sàn option", "bản đồ thanh lý", "phòng lead", "youtuber", "influencer", "DeFi", "Tether",
+      "ETF giao ngay", "halving", "trại đào", "Việt kiều xa xứ", "siêu cá lẹp", "coin mới niêm yết", "coin bị delist", "Grayscale", "tay to", "cá lẹp kẹt hàng"
+    ],
+    "kwSentimentLong": [
+      "tăng mạnh", "pump", "sóng tăng", "to the moon", "breakout", "đỉnh mới", "hồi phục", "short cháy", "gom hàng", "ôm thắng",
+      "tên lửa", "xu hướng tăng", "golden cross", "mua hoảng loạn", "hưng phấn", "sắp pump", "bắn phá", "bơm giá", "nến xanh", "đèn xanh",
+      "chốt lời", "thoát đáy", "mua đáy", "lên mặt trăng", "to da moon", "parabolic", "siêu chu kỳ", "mùa altcoin", "gap up", "nến xanh dài",
+      "tường mua", "tăng sốc", "kịch trần", "múc không suy nghĩ", "full margin", "múc thêm", "bắn pháo hoa", "mã 10x", "phe bò", "mua khi điều chỉnh",
+      "phe làm giá gom hàng", "cá lẹp thắng", "sét đánh trúng", "trúng lớn", "sóng tăng khủng"
+    ],
+    "kwSentimentShort": [
+      "giảm mạnh", "dump", "thị trường gấu", "điều chỉnh", "hoảng loạn", "sợ hãi", "thanh lý", "giảm sâu", "cắt lỗ", "dead cat bounce",
+      "xu hướng giảm", "death cross", "bán tháo", "kẹt hàng", "sang chấn", "sắp dump", "địa ngục", "tầng hầm", "đèn đỏ", "nến đỏ dài",
+      "long cháy", "sập sàn", "giá sàn", "bán hoảng loạn", "trung bình giá xuống", "ôm chặt", "đu đỉnh", "kẹt đỉnh", "mất nửa vốn", "rút chạy",
+      "rug pull", "lừa đảo", "sắp delist", "bán theo tin", "tường bán", "nghĩa địa cá lẹp", "tiếng than khóc", "âm vốn", "gap down", "muốn nhảy sông",
+      "cháy tài khoản", "call margin", "thanh lý cưỡng bức", "gà mờ", "nước mắt"
+    ],
+    "kwTargets": [
+      "Bitcoin", "Ethereum", "Dogecoin", "Ripple", "Solana", "Shiba", "Pepe", "Cardano", "Tron", "Bonk",
+      "Polkadot", "Avalanche", "Chainlink", "Litecoin", "Near", "Aptos", "Sui", "memecoin", "altcoin", "coin rác",
+      "Polygon", "Cosmos", "Algorand", "Stellar", "Bitcoin Cash", "Ethereum Classic", "Filecoin", "Hedera", "Injective", "Sei",
+      "Celestia", "Wif", "Floki", "Maker", "Uniswap", "Aave", "Sandbox", "Decentraland", "Gala", "Arbitrum",
+      "Optimism", "Starknet", "Render", "The Graph", "Toncoin", "Notcoin", "Jupiter", "Pi Network", "Wormhole", "Movement"
+    ]
+  }
+}

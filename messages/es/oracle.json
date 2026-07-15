@@ -1,0 +1,54 @@
+{
+  "oracle": {
+    "octoAria": "El pulpo oráculo Tako",
+    "luckBadge": "Hoy es modo pura suerte 🎲",
+    "disclaimerCard": "Este resultado es solo contenido de entretenimiento, no es una recomendación ni asesoría de inversión. Toda decisión de inversión y su responsabilidad son exclusivamente tuyas.",
+    "again": "Recibir otra profecía",
+    "share": "Compartir resultado",
+    "copied": "¡Copiado!",
+    "shareText": "La profecía de hoy de Tako: {side}! {ment}",
+    "shareTitle": "Oráculo Long Short",
+    "predictSelf": "Predecir yo mismo",
+    "cooldown": {
+      "until": "Hasta la próxima profecía",
+      "hms": "{h}h {m}min {s}s",
+      "ms": "{m}min {s}s",
+      "help": "Cuanto más pidas profecías, el intervalo se irá alargando un poco cada vez. El recibir al instante permite {n} veces al día (se reinicia a medianoche).",
+      "exhausted": "Ya usaste todos tus recibir al instante de hoy. Se renuevan a medianoche."
+    },
+    "skip": {
+      "now": "Recibir ahora mismo",
+      "remaining": "Recibir ahora mismo (quedan {n})"
+    },
+    "ad": {
+      "title": "Recibir ahora mismo",
+      "aria": "Recibir la profecía ahora mismo",
+      "close": "Cerrar",
+      "desc": "Espera solo un momento y podrás recibir la profecía ahora mismo, sin esperar el enfriamiento.",
+      "confirm": "Recibir la profecía ahora",
+      "wait": "Disponible en {n}s"
+    },
+    "accuracy": {
+      "title": "El boletín (solo por diversión) de las profecías de Tako",
+      "sectionAria": "Boletín de profecías de Tako",
+      "distribution": "Distribución de las profecías de hoy",
+      "totalCount": "{n} en total",
+      "aggregating": "Calculando",
+      "refresh": "Actualizar",
+      "longPct": "Long {n}%",
+      "shortPct": "Short {n}%",
+      "waitingFirst": "Esperando la primera profecía del día.",
+      "win": {
+        "1h": "Hora",
+        "1d": "Día",
+        "1w": "Semana",
+        "1mo": "Mes",
+        "1y": "Año",
+        "all": "Todo"
+      },
+      "hitSummary": "{hits} aciertos de {total} profecías",
+      "previewNote": "A medida que se acumulen datos, esto se convertirá en un puntaje real (por ahora es solo una vista previa)",
+      "disclaimer": "* Esta es una estadística de entretenimiento que solo verifica si la dirección acertó frente al precio en el momento de la profecía. No tiene relación con el rendimiento real, y nunca olvides que la profecía del pulpo es básicamente lanzar una moneda al aire."
+    }
+  }
+}

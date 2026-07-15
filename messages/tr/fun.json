@@ -1,0 +1,58 @@
+{
+  "fun": {
+    "heroTitles": [
+      "Bugün bitcoin long mu short mu?",
+      "Tutmak mı kesmek mi, işte bütün mesele bu",
+      "Grafiğe bakmayı bırak, Tako'ya sor",
+      "Gözle karar vermek riskli, karar tentaküllere kalsın",
+      "Bugün de portföyü kırmızıya boyamaya hazır mısın?",
+      "Kripto tanrısı yok ama ahtapot var",
+      "Bugünkü pozisyonuna ahtapot karar veriyor",
+      "Long mu? Short mu? Ahtapotun bir planı var",
+      "Pump ile dump arasında bir ahtapot duruyor",
+      "Belki de günlük burcundan daha isabetli bir kehanet",
+      "Marjin çağrısına değil, gülümsemeye hazırlan",
+      "Düşünmek sadece likidasyona götürür, önce ahtapota sor",
+      "Bitcoin bilmez ama ahtapot bilir (galiba)",
+      "Cüzdan hafif, moral yüksek olsun"
+    ],
+    "loading": [
+      "Göstergeler okunuyor...",
+      "Balinaların pozisyonu gizlice inceleniyor...",
+      "Korku ve açgözlülük kokusu alınıyor...",
+      "Funding oranının sıcaklığı ölçülüyor...",
+      "Küçük yatırımcıların ayak izleri sayılıyor...",
+      "Grafiğe mürekkep sıçratılıyor...",
+      "Sekiz kolla abaküs çekiliyor...",
+      "Derin denizin akıntıları hissediliyor..."
+    ],
+    "kwSubjects": [
+      "Elon", "Balinalar", "Kurumsallar", "Küçük yatırımcı", "Piyasa yapıcılar", "FED", "Powell", "Nasdaq", "Borsa primi", "Satoshi",
+      "Trump", "ETF", "Yabancı yatırımcılar", "Vadeli işlem defteri", "Amerika seansı", "Madenciler", "Akıllı para", "Zincir üstü veri", "Topluluk", "Kripto Twitter",
+      "CZ", "Binance", "Bybit", "OKX", "Coinbase", "BlackRock", "MicroStrategy", "Michael Saylor", "Vitalik", "Justin Sun",
+      "Yellen", "SEC", "Hedge fonlar", "Opsiyon defteri", "Likidasyon haritası", "Pump grupları", "Youtuberlar", "Influencerlar", "DeFi", "Tether",
+      "Spot ETF", "Yarılanma", "Madencilik çiftliği", "Gizli insider'lar", "Süper yatırımcı", "Yeni listeleme", "Listeden kaldırma", "Grayscale", "Büyük oyuncu", "Zarardaki yatırımcılar"
+    ],
+    "kwSentimentLong": [
+      "Boğa modu", "Pump", "Boğa piyasası", "Hadi bakalım", "Kırılım", "Tüm zamanların zirvesi", "Toparlanma", "Short sıkışması", "Toplama", "Hodlerin zaferi",
+      "Roket", "Yükseliş trendi", "Altın kesişim", "Panik alım", "Coşku", "Pump'a hazır", "Ani yükseliş", "Pompalama", "Yeşil mum", "Yeşil sinyal",
+      "Kâr realizasyonu", "Dipten çıkış", "Dipten alım", "Aya doğru", "To the moon", "Parabolik yükseliş", "Süper döngü", "Altcoin sezonu", "Yukarı boşluk", "Büyük yeşil mum",
+      "Alım duvarı", "Fırlama", "Tavan fiyat", "Düşünmeden alım", "All-in alım", "Ek alım", "Kutlama havai fişeği", "On katına çıkan hisse", "Boğa yatırımcılar", "Geri çekilmede alım",
+      "Piyasa yapıcı toplaması", "Küçük yatırımcı zaferi", "Yıldırım hızında yükseliş", "Büyük vuruş", "Yükseliş rallisi"
+    ],
+    "kwSentimentShort": [
+      "Ayı modu", "Dump", "Ayı piyasası", "Düzeltme", "Panik", "Korku", "Likidasyon", "Geri çekilme", "Zarar kes", "Dead cat sıçraması",
+      "Düşüş trendi", "Ölüm kesişimi", "Toplu satış", "Tuzakta kalma", "Panik havası", "Dump'a hazır", "Dip delindi", "Bodrum kat", "Kırmızı sinyal", "Kırmızı mum",
+      "Long sıkışması", "Çöküş", "Taban fiyat", "Panik satışı", "Ortalama düşürme", "Acıyla tutma", "Zirvede tuzak", "Tepede sıkışma", "Yarı yarıya kayıp", "Coinden kaçış",
+      "Rug pull", "Dolandırıcılık", "Listeden kaldırılma sınırında", "Haberde sat", "Satış duvarı", "Küçük yatırımcı mezarlığı", "İnleme sesleri", "Sermaye erimesi", "Aşağı boşluk", "Tam felaket",
+      "Sıfırlandı", "Marjin çağrısı", "Zorunlu likidasyon", "Şanssız yatırımcı", "Gözyaşları"
+    ],
+    "kwTargets": [
+      "Bitcoin", "Ethereum", "Dogecoin", "Ripple", "Solana", "Shiba", "Pepe", "Cardano", "Tron", "Bonk",
+      "Polkadot", "Avalanche", "Chainlink", "Litecoin", "Near", "Aptos", "Sui", "Meme coinler", "Altcoinler", "İsimsiz altcoin",
+      "Polygon", "Cosmos", "Algorand", "Stellar", "Bitcoin Cash", "Ethereum Classic", "Filecoin", "Hedera", "Injective", "Sei",
+      "Celestia", "WIF", "Floki", "Maker", "Uniswap", "Aave", "Sandbox", "Decentraland", "Gala", "Arbitrum",
+      "Optimism", "StarkNet", "Render", "The Graph", "Toncoin", "Notcoin", "Jupiter", "Pi Coin", "Wormhole", "Movement"
+    ]
+  }
+}

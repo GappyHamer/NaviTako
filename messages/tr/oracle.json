@@ -1,0 +1,54 @@
+{
+  "oracle": {
+    "octoAria": "Kahin Ahtapot Tako",
+    "luckBadge": "Bugün tam şans modu 🎲",
+    "disclaimerCard": "Bu sonuç eğlence amaçlı bir içeriktir, yatırım tavsiyesi veya önerisi değildir. Tüm yatırım kararları ve sorumluluğu sana aittir.",
+    "again": "Yeni kehanet al",
+    "share": "Sonucu paylaş",
+    "copied": "Kopyalandı!",
+    "shareText": "Kahin Tako'nun bugünkü kehaneti: {side}! {ment}",
+    "shareTitle": "Long-Short Kehaneti",
+    "predictSelf": "Kendim tahmin edeyim",
+    "cooldown": {
+      "until": "Bir sonraki kehanete kadar",
+      "hms": "{h} sa {m} dk {s} sn",
+      "ms": "{m} dk {s} sn",
+      "help": "Ne kadar çok kehanet alırsan, sonraki bekleme süresi de o kadar uzar. Anında alma hakkı günde {n} kez (gece yarısı sıfırlanır).",
+      "exhausted": "Bugünkü anında alma hakkını tükettin. Gece yarısı yenilenir."
+    },
+    "skip": {
+      "now": "Hemen şimdi al",
+      "remaining": "Hemen al ({n} hak kaldı)"
+    },
+    "ad": {
+      "title": "Hemen şimdi al",
+      "aria": "Kehaneti hemen şimdi al",
+      "close": "Kapat",
+      "desc": "Biraz bekle, bekleme süresi olmadan kehanetini hemen şimdi alabilirsin.",
+      "confirm": "Kehaneti şimdi al",
+      "wait": "{n} saniye sonra alabilirsin"
+    },
+    "accuracy": {
+      "title": "Eğlencelik Tako kehanet karnesi",
+      "sectionAria": "Tako kehanet karnesi",
+      "distribution": "Bugünün kehanet dağılımı",
+      "totalCount": "Toplam {n}",
+      "aggregating": "Hesaplanıyor",
+      "refresh": "Yenile",
+      "longPct": "Long %{n}",
+      "shortPct": "Short %{n}",
+      "waitingFirst": "Bugünün ilk kehaneti bekleniyor.",
+      "win": {
+        "1h": "saat",
+        "1d": "gün",
+        "1w": "hafta",
+        "1mo": "ay",
+        "1y": "yıl",
+        "all": "tümü"
+      },
+      "hitSummary": "{total} kehanetten {hits} tanesi tuttu",
+      "previewNote": "Veri biriktikçe bu, gerçek bir başarı oranına dönüşecek (şimdilik önizleme)",
+      "disclaimer": "* Kehanet anındaki fiyata göre yönün tutup tutmadığını gösteren eğlencelik bir istatistiktir. Gerçek getiriyle ilgisi yoktur, unutma: ahtapotun kehaneti yazı tura atmaya çok yakın."
+    }
+  }
+}
