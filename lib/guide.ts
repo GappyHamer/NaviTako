@@ -1,6 +1,7 @@
 /**
  * 가이드 글(markdown) 로더 — 서버 전용.
- * content/guide/*.md 를 읽어 frontmatter를 파싱하고 marked로 HTML 렌더링한다.
+ * content/guide/{locale}/*.md 를 읽어 frontmatter를 파싱하고 marked로 HTML 렌더링한다.
+ * 언어별 글이 없으면 기본 언어(ko)로 폴백한다. slug 목록은 항상 ko 기준.
  * 광고 중단(中段) 삽입을 위해 본문 중간의 H2 경계에서 두 조각으로 나눈다.
  */
 
@@ -11,6 +12,16 @@ import { marked } from "marked";
 marked.setOptions({ gfm: true });
 
 const GUIDE_DIR = path.join(process.cwd(), "content", "guide");
+const DEFAULT_LOCALE = "ko";
+
+/** 해당 locale 의 글 경로를 반환하되, 없으면 ko 폴백 경로로. 둘 다 없으면 null */
+function resolveGuidePath(slug: string, locale: string): string | null {
+  const localized = path.join(GUIDE_DIR, locale, `${slug}.md`);
+  if (fs.existsSync(localized)) return localized;
+  const fallback = path.join(GUIDE_DIR, DEFAULT_LOCALE, `${slug}.md`);
+  if (fs.existsSync(fallback)) return fallback;
+  return null;
+}
 
 export type GuideMeta = {
   slug: string;
@@ -61,18 +72,21 @@ function splitAtMiddleHeading(markdown: string): [string] | [string, string] {
   return [markdown.slice(0, best), markdown.slice(best)];
 }
 
+/** slug 목록은 항상 기본 언어(ko) 기준 */
 export function getGuideSlugs(): string[] {
-  if (!fs.existsSync(GUIDE_DIR)) return [];
+  const koDir = path.join(GUIDE_DIR, DEFAULT_LOCALE);
+  if (!fs.existsSync(koDir)) return [];
   return fs
-    .readdirSync(GUIDE_DIR)
+    .readdirSync(koDir)
     .filter((f) => f.endsWith(".md"))
     .map((f) => f.replace(/\.md$/, ""));
 }
 
-export function getAllGuideMeta(): GuideMeta[] {
+export function getAllGuideMeta(locale: string = DEFAULT_LOCALE): GuideMeta[] {
   return getGuideSlugs()
     .map((slug) => {
-      const raw = fs.readFileSync(path.join(GUIDE_DIR, `${slug}.md`), "utf8");
+      const filePath = resolveGuidePath(slug, locale);
+      const raw = filePath ? fs.readFileSync(filePath, "utf8") : "";
       const { data } = parseFrontmatter(raw);
       return {
         slug,
@@ -84,9 +98,12 @@ export function getAllGuideMeta(): GuideMeta[] {
     .sort((a, b) => a.order - b.order);
 }
 
-export function getGuideArticle(slug: string): GuideArticle | null {
-  const filePath = path.join(GUIDE_DIR, `${slug}.md`);
-  if (!fs.existsSync(filePath)) return null;
+export function getGuideArticle(
+  slug: string,
+  locale: string = DEFAULT_LOCALE
+): GuideArticle | null {
+  const filePath = resolveGuidePath(slug, locale);
+  if (!filePath) return null;
 
   const raw = fs.readFileSync(filePath, "utf8");
   const { data, body } = parseFrontmatter(raw);

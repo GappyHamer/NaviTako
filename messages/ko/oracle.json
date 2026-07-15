@@ -1,0 +1,54 @@
+{
+  "oracle": {
+    "octoAria": "예언가 문어 Tako",
+    "luckBadge": "오늘은 순수 운빨 모드 🎲",
+    "disclaimerCard": "이 결과는 오락용 콘텐츠로, 투자 권유·조언이 아닙니다. 모든 투자 판단과 책임은 본인에게 있습니다.",
+    "again": "다시 예언 받기",
+    "share": "결과 공유",
+    "copied": "복사됨!",
+    "shareText": "예언가 Tako의 오늘 예언: {side}! {ment}",
+    "shareTitle": "롱숏 예언",
+    "predictSelf": "내가 직접 예언하기",
+    "cooldown": {
+      "until": "다음 예언까지",
+      "hms": "{h}시간 {m}분 {s}초",
+      "ms": "{m}분 {s}초",
+      "help": "예언할수록 다음 텀이 조금씩 길어져요. 바로받기는 하루 {n}번(자정 초기화).",
+      "exhausted": "오늘 바로받기를 다 썼어요. 자정에 다시 채워져요."
+    },
+    "skip": {
+      "now": "지금 바로 받기",
+      "remaining": "지금 바로 받기 ({n}회 남음)"
+    },
+    "ad": {
+      "title": "지금 바로 받기",
+      "aria": "지금 바로 예언 받기",
+      "close": "닫기",
+      "desc": "잠깐만 기다리면 쿨다운 없이 지금 바로 예언을 받을 수 있어요.",
+      "confirm": "지금 예언 받기",
+      "wait": "{n}초 후 받을 수 있어요"
+    },
+    "accuracy": {
+      "title": "재미로 보는 Tako 예언 성적표",
+      "sectionAria": "Tako 예언 성적표",
+      "distribution": "오늘의 예언 분포",
+      "totalCount": "총 {n}회",
+      "aggregating": "집계 중",
+      "refresh": "새로고침",
+      "longPct": "롱 {n}%",
+      "shortPct": "숏 {n}%",
+      "waitingFirst": "오늘의 첫 예언을 기다리는 중이에요.",
+      "win": {
+        "1h": "시간",
+        "1d": "일",
+        "1w": "주",
+        "1mo": "월",
+        "1y": "연",
+        "all": "전체"
+      },
+      "hitSummary": "예언 {total}건 중 {hits}건 적중",
+      "previewNote": "집계가 쌓이면 진짜 성적으로 바뀌어요 (지금은 미리보기)",
+      "disclaimer": "* 예언 시점 가격 대비 방향이 맞았는지를 집계한 오락용 통계입니다. 실제 수익률과 무관하고, 문어의 예언은 동전 던지기에 가깝다는 걸 잊지 마세요."
+    }
+  }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 /**
  * Tako 예언 성적표 (재미로 보는).
@@ -22,16 +23,8 @@ type StatsPayload = {
 };
 
 const MIN_SAMPLES = 8;
-const numberFormat = new Intl.NumberFormat("ko-KR");
 
-const WINDOWS: { key: Win; label: string }[] = [
-  { key: "1h", label: "시간" },
-  { key: "1d", label: "일" },
-  { key: "1w", label: "주" },
-  { key: "1mo", label: "월" },
-  { key: "1y", label: "연" },
-  { key: "all", label: "전체" },
-];
+const WINDOW_KEYS: Win[] = ["1h", "1d", "1w", "1mo", "1y", "all"];
 
 /** FNV-1a 결정론적 0~1 (Math.random·Date 미사용 → 하이드레이션 안전) */
 function seeded(key: string): number {
@@ -47,6 +40,9 @@ function funAccuracy(key: string): number {
 }
 
 export default function AccuracyWidget() {
+  const t = useTranslations("oracle");
+  const locale = useLocale();
+  const numberFormat = new Intl.NumberFormat(locale);
   const [stats, setStats] = useState<StatsPayload | null>(null);
   const [win, setWin] = useState<Win>("1d");
   const [refreshing, setRefreshing] = useState(false);
@@ -80,24 +76,28 @@ export default function AccuracyWidget() {
   return (
     <section
       className="mx-auto w-full max-w-sm rounded-2xl surface p-5"
-      aria-label="Tako 예언 성적표"
+      aria-label={t("accuracy.sectionAria")}
     >
       <p className="txt-muted text-center text-xs">
-        🎯 재미로 보는 Tako 예언 성적표
+        🎯 {t("accuracy.title")}
       </p>
 
       {/* 오늘의 예언 분포 (+ 새로고침) */}
       <div className="mt-4">
         <div className="txt-faint flex items-center justify-between text-[11px]">
-          <span>오늘의 예언 분포</span>
+          <span>{t("accuracy.distribution")}</span>
           <span className="flex items-center gap-1.5">
-            <span>{hasDist ? `총 ${numberFormat.format(dist!.total)}회` : "집계 중"}</span>
+            <span>
+              {hasDist
+                ? t("accuracy.totalCount", { n: numberFormat.format(dist!.total) })
+                : t("accuracy.aggregating")}
+            </span>
             <button
               type="button"
               onClick={() => void fetchStats()}
               disabled={refreshing}
-              aria-label="분포 새로고침"
-              title="새로고침"
+              aria-label={t("accuracy.refresh")}
+              title={t("accuracy.refresh")}
               className="grid h-5 w-5 place-items-center rounded-full hover:opacity-70 disabled:opacity-40"
             >
               <span className={refreshing ? "inline-block animate-spin" : ""}>
@@ -113,13 +113,13 @@ export default function AccuracyWidget() {
               <div className="bg-red-500" style={{ width: `${shortPct}%` }} />
             </div>
             <div className="mt-1 flex justify-between text-[11px] font-semibold">
-              <span className="txt-long">롱 {longPct}%</span>
-              <span className="txt-short">숏 {shortPct}%</span>
+              <span className="txt-long">{t("accuracy.longPct", { n: longPct })}</span>
+              <span className="txt-short">{t("accuracy.shortPct", { n: shortPct })}</span>
             </div>
           </>
         ) : (
           <p className="txt-faint mt-1.5 text-center text-xs">
-            오늘의 첫 예언을 기다리는 중이에요.
+            {t("accuracy.waitingFirst")}
           </p>
         )}
       </div>
@@ -137,31 +137,33 @@ export default function AccuracyWidget() {
         </p>
 
         <div className="mt-2 flex flex-wrap justify-center gap-1.5">
-          {WINDOWS.map((w) => (
+          {WINDOW_KEYS.map((key) => (
             <button
-              key={w.key}
+              key={key}
               type="button"
-              onClick={() => setWin(w.key)}
-              aria-pressed={w.key === win}
+              onClick={() => setWin(key)}
+              aria-pressed={key === win}
               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                w.key === win ? "btn-accent" : "surface txt-muted hover:opacity-80"
+                key === win ? "btn-accent" : "surface txt-muted hover:opacity-80"
               }`}
             >
-              {w.label}
+              {t(`accuracy.win.${key}`)}
             </button>
           ))}
         </div>
 
         <p className="txt-faint mt-2 text-xs">
           {hasReal
-            ? `예언 ${numberFormat.format(tally!.total)}건 중 ${numberFormat.format(tally!.hits)}건 적중`
-            : "집계가 쌓이면 진짜 성적으로 바뀌어요 (지금은 미리보기)"}
+            ? t("accuracy.hitSummary", {
+                total: numberFormat.format(tally!.total),
+                hits: numberFormat.format(tally!.hits),
+              })
+            : t("accuracy.previewNote")}
         </p>
       </div>
 
       <p className="txt-faint mt-3 text-center text-[10px] leading-relaxed">
-        * 예언 시점 가격 대비 방향이 맞았는지를 집계한 오락용 통계입니다. 실제
-        수익률과 무관하고, 문어의 예언은 동전 던지기에 가깝다는 걸 잊지 마세요.
+        {t("accuracy.disclaimer")}
       </p>
     </section>
   );

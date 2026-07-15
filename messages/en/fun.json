@@ -1,0 +1,48 @@
+{
+  "fun": {
+    "heroTitles": [
+      "Bitcoin today — long or short?",
+      "Stop staring at the chart. Ask Tako.",
+      "HODL or fold? That is the question.",
+      "Your position for today, decided by an octopus.",
+      "Long? Short? Tako's got a plan.",
+      "Coin gods aren't real. Tako is.",
+      "Between moon and doom stands one octopus.",
+      "Come to laugh, not to get liquidated.",
+      "Maybe more accurate than your horoscope.",
+      "Overthinking gets you liquidated. Ask the octopus.",
+      "Light wallet, happy heart.",
+      "Eight legs, one verdict."
+    ],
+    "loading": [
+      "Reading the tape...",
+      "Peeking at the whales' positions...",
+      "Sniffing out fear and greed...",
+      "Taking the funding rate's temperature...",
+      "Counting retail footprints...",
+      "Splashing ink on the chart...",
+      "Working the abacus with eight legs...",
+      "Sensing the deep-sea currents..."
+    ],
+    "kwSubjects": [
+      "Elon", "whales", "the Fed", "retail", "Powell", "BlackRock", "Saylor", "CZ",
+      "the SEC", "Binance", "Coinbase", "funding", "OI", "the desk", "influencers", "CT",
+      "the ETF", "Grayscale", "market makers", "Vitalik", "Trump", "hedge funds", "the algo", "shorts"
+    ],
+    "kwSentimentLong": [
+      "moon", "pump", "bull run", "breakout", "new ATH", "LFG", "send it", "short squeeze",
+      "parabolic", "god candle", "up only", "golden cross", "FOMO", "diamond hands", "melt up", "face-ripper",
+      "bid", "reclaim", "supercycle", "alt season", "gigapump", "NGU", "green dildo", "we're back"
+    ],
+    "kwSentimentShort": [
+      "dump", "rug", "bear market", "correction", "panic", "capitulation", "liquidation", "dead cat",
+      "down bad", "red candle", "death cross", "rekt", "exit liquidity", "nuke", "flush", "bleed",
+      "bull trap", "max pain", "margin call", "paper hands", "cope", "GG", "fade", "bags heavy"
+    ],
+    "kwTargets": [
+      "BTC", "ETH", "DOGE", "XRP", "SOL", "SHIB", "PEPE", "ADA",
+      "TRX", "BONK", "LINK", "AVAX", "SUI", "APT", "memecoins", "alts",
+      "WIF", "FLOKI", "TON", "NOT", "RNDR", "INJ", "SEI", "JUP"
+    ]
+  }
+}

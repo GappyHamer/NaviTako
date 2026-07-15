@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 /* ---------- 로컬 타입 (API 계약과 일치) ---------- */
 
@@ -53,35 +54,12 @@ type BoardData = {
 /* ---------- 상수 ---------- */
 
 const TF_ORDER: Tf[] = ["4h", "1d", "1w", "1mo", "1y"];
-const TF_LABELS: Record<Tf, string> = {
-  "4h": "4시간",
-  "1d": "일간",
-  "1w": "주간",
-  "1mo": "월간",
-  "1y": "연간",
-};
-
-const LB_TABS: { key: LbKey; label: string }[] = [
-  { key: "all", label: "통합" },
-  { key: "4h", label: "4시간" },
-  { key: "1d", label: "일간" },
-  { key: "1w", label: "주간" },
-  { key: "1mo", label: "월간" },
-  { key: "1y", label: "연간" },
-];
+const LB_KEYS: LbKey[] = ["all", "4h", "1d", "1w", "1mo", "1y"];
 
 /* ---------- 유틸 ---------- */
 
 function accLabel(hits: number, total: number): string {
   return total > 0 ? `${((hits / total) * 100).toFixed(1)}%` : "-";
-}
-
-function formatRemaining(ms: number): string {
-  const t = Math.max(0, Math.floor(ms / 1000));
-  const h = Math.floor(t / 3600);
-  const m = Math.floor((t % 3600) / 60);
-  const s = t % 60;
-  return `${h}시간 ${m}분 ${s}초`;
 }
 
 function fmtDate(ms: number): string {
@@ -94,6 +72,18 @@ function fmtDate(ms: number): string {
 /* ---------- 메인 ---------- */
 
 export default function PredictClient() {
+  const t = useTranslations("pages");
+  const tfLabel = (tf: Tf) => t(`predict.tf.${tf}`);
+  const lbTabLabel = (key: LbKey) =>
+    key === "all" ? t("predict.lbAll") : t(`predict.tf.${key}`);
+  const formatRemaining = (ms: number): string => {
+    const total = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    return t("predict.remaining", { h, m, s });
+  };
+
   const [mounted, setMounted] = useState(false);
   const [data, setData] = useState<PredictData | null>(null);
 
@@ -107,7 +97,9 @@ export default function PredictClient() {
   /* 설정 패널 */
   const [showSettings, setShowSettings] = useState(false);
   const [nickInput, setNickInput] = useState("");
-  const [nickMsg, setNickMsg] = useState("");
+  const [nickMsg, setNickMsg] = useState<{ text: string; ok: boolean } | null>(
+    null,
+  );
   const [savingNick, setSavingNick] = useState(false);
   const [savingPic, setSavingPic] = useState(false);
 
@@ -177,7 +169,7 @@ export default function PredictClient() {
   if (!mounted || data === null) {
     return (
       <div className="surface rounded-2xl p-6">
-        <p className="txt-muted text-sm">불러오는 중…</p>
+        <p className="txt-muted text-sm">{t("predict.loading")}</p>
       </div>
     );
   }
@@ -187,16 +179,16 @@ export default function PredictClient() {
     return (
       <section className="surface space-y-4 rounded-2xl p-8 text-center">
         <h1 className="txt-strong text-2xl font-bold">
-          🔮 예언은 로그인 후에 시작돼요
+          {t("predict.loginHeading")}
         </h1>
         <p className="txt-muted text-sm leading-relaxed">
-          구글로 로그인하면 나만의 전적과 리더보드가 생겨요
+          {t("predict.loginBody")}
         </p>
         <a
           href="/api/auth/login"
           className="btn-accent inline-block rounded-xl px-6 py-3 text-sm font-semibold"
         >
-          구글로 로그인
+          {t("predict.loginButton")}
         </a>
       </section>
     );
@@ -217,7 +209,7 @@ export default function PredictClient() {
     const next = nickInput.trim();
     if (!next || next === (nick || name)) return;
     setSavingNick(true);
-    setNickMsg("");
+    setNickMsg(null);
     try {
       const res = await fetch("/api/profile", {
         method: "POST",
@@ -230,17 +222,20 @@ export default function PredictClient() {
         nickChangeableAt?: number;
       };
       if (res.ok && j.ok) {
-        setNickMsg("닉네임을 바꿨어요");
+        setNickMsg({ text: t("predict.nickChanged"), ok: true });
         await Promise.all([loadPredict(), loadBoard(lbKey, lbSort)]);
       } else if (res.status === 429 || j.reason === "cooldown") {
-        setNickMsg(
-          `다음 변경 가능: ${fmtDate(j.nickChangeableAt ?? nickChangeableAt)}`,
-        );
+        setNickMsg({
+          text: t("predict.nickNextChange", {
+            date: fmtDate(j.nickChangeableAt ?? nickChangeableAt),
+          }),
+          ok: false,
+        });
       } else {
-        setNickMsg("닉네임을 확인해주세요");
+        setNickMsg({ text: t("predict.nickInvalid"), ok: false });
       }
     } catch {
-      setNickMsg("닉네임을 확인해주세요");
+      setNickMsg({ text: t("predict.nickInvalid"), ok: false });
     } finally {
       setSavingNick(false);
     }
@@ -300,18 +295,18 @@ export default function PredictClient() {
             type="button"
             onClick={() => {
               setNickInput("");
-              setNickMsg("");
+              setNickMsg(null);
               setShowSettings((v) => !v);
             }}
             className="link-accent whitespace-nowrap text-xs"
           >
-            설정
+            {t("predict.settings")}
           </button>
           <a
             href="/api/auth/logout"
             className="link-accent whitespace-nowrap text-xs"
           >
-            로그아웃
+            {t("predict.logout")}
           </a>
         </div>
       </section>
@@ -321,7 +316,9 @@ export default function PredictClient() {
         <section className="surface space-y-5 rounded-2xl p-5">
           {/* 닉네임 변경 */}
           <div className="space-y-2">
-            <p className="txt-strong text-sm font-semibold">닉네임 변경</p>
+            <p className="txt-strong text-sm font-semibold">
+              {t("predict.nickChange")}
+            </p>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -338,25 +335,21 @@ export default function PredictClient() {
                 disabled={nickLocked || savingNick}
                 className="btn-accent whitespace-nowrap rounded-xl px-4 py-2 text-sm font-bold disabled:opacity-40"
               >
-                변경
+                {t("predict.nickSubmit")}
               </button>
             </div>
             {nickLocked ? (
               <p className="txt-faint text-xs">
-                다음 변경 가능: {fmtDate(nickChangeableAt)}
+                {t("predict.nickNextChange", {
+                  date: fmtDate(nickChangeableAt),
+                })}
               </p>
             ) : (
-              <p className="txt-faint text-xs">
-                닉네임은 한 번 바꾸면 90일간 다시 못 바꿔요
-              </p>
+              <p className="txt-faint text-xs">{t("predict.nickHint")}</p>
             )}
             {nickMsg && (
-              <p
-                className={`text-xs ${
-                  nickMsg === "닉네임을 바꿨어요" ? "txt-muted" : "txt-short"
-                }`}
-              >
-                {nickMsg}
+              <p className={`text-xs ${nickMsg.ok ? "txt-muted" : "txt-short"}`}>
+                {nickMsg.text}
               </p>
             )}
           </div>
@@ -364,7 +357,7 @@ export default function PredictClient() {
           {/* 프로필 사진 표시 */}
           <div className="border-app flex items-center justify-between gap-3 border-t pt-4">
             <span className="txt-strong text-sm font-semibold">
-              프로필 사진 표시
+              {t("predict.picShow")}
             </span>
             <button
               type="button"
@@ -374,7 +367,7 @@ export default function PredictClient() {
                 picOn ? "btn-accent" : "surface-solid border-app txt-muted border"
               }`}
             >
-              {picOn ? "켜짐" : "꺼짐"}
+              {picOn ? t("predict.on") : t("predict.off")}
             </button>
           </div>
         </section>
@@ -382,7 +375,9 @@ export default function PredictClient() {
 
       {/* ---------- 시간대별 예언 ---------- */}
       <section className="space-y-4">
-        <h2 className="txt-strong text-lg font-bold">시간대별 예언</h2>
+        <h2 className="txt-strong text-lg font-bold">
+          {t("predict.tfHeading")}
+        </h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {TF_ORDER.map((tf) => {
             const st = perTf[tf];
@@ -393,10 +388,10 @@ export default function PredictClient() {
               <div key={tf} className="surface space-y-3 rounded-2xl p-4">
                 <div className="flex items-start justify-between gap-2">
                   <span className="txt-strong text-sm font-bold">
-                    {TF_LABELS[tf]}
+                    {tfLabel(tf)}
                   </span>
                   <span className="txt-faint whitespace-nowrap text-xs tabular-nums">
-                    {settling ? "정산 중" : formatRemaining(remaining)}
+                    {settling ? t("predict.settling") : formatRemaining(remaining)}
                   </span>
                 </div>
 
@@ -407,9 +402,16 @@ export default function PredictClient() {
                         st.pickedSide === "LONG" ? "txt-long" : "txt-short"
                       }`}
                     >
-                      내 예언: {st.pickedSide === "LONG" ? "📈 롱" : "📉 숏"}
+                      {t("predict.myPick", {
+                        side:
+                          st.pickedSide === "LONG"
+                            ? t("predict.long")
+                            : t("predict.short"),
+                      })}
                     </p>
-                    <p className="txt-faint text-xs">마감 후 채점돼요</p>
+                    <p className="txt-faint text-xs">
+                      {t("predict.gradedAfterClose")}
+                    </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2">
@@ -419,7 +421,7 @@ export default function PredictClient() {
                       disabled={submitting}
                       className="btn-accent rounded-xl px-3 py-3 text-sm font-bold disabled:opacity-40"
                     >
-                      📈 롱
+                      {t("predict.long")}
                     </button>
                     <button
                       type="button"
@@ -427,13 +429,18 @@ export default function PredictClient() {
                       disabled={submitting}
                       className="surface-solid border-app txt-short rounded-xl border px-3 py-3 text-sm font-bold disabled:opacity-40"
                     >
-                      📉 숏
+                      {t("predict.short")}
                     </button>
                   </div>
                 )}
 
                 <p className="txt-faint border-app border-t pt-2 text-xs">
-                  적중 {st.hits}/{st.total} · 🔥 {st.streak} (최고 {st.best})
+                  {t("predict.tfStats", {
+                    hits: st.hits,
+                    total: st.total,
+                    streak: st.streak,
+                    best: st.best,
+                  })}
                 </p>
               </div>
             );
@@ -443,22 +450,24 @@ export default function PredictClient() {
 
       {/* ---------- 리더보드 ---------- */}
       <section className="surface space-y-4 rounded-2xl p-6">
-        <h2 className="txt-strong text-lg font-bold">리더보드</h2>
+        <h2 className="txt-strong text-lg font-bold">
+          {t("predict.leaderboard")}
+        </h2>
 
         {/* key 탭 */}
         <div className="flex flex-wrap gap-2">
-          {LB_TABS.map((t) => (
+          {LB_KEYS.map((key) => (
             <button
-              key={t.key}
+              key={key}
               type="button"
-              onClick={() => setLbKey(t.key)}
+              onClick={() => setLbKey(key)}
               className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
-                lbKey === t.key
+                lbKey === key
                   ? "btn-accent"
                   : "surface-solid border-app txt-muted border"
               }`}
             >
-              {t.label}
+              {lbTabLabel(key)}
             </button>
           ))}
         </div>
@@ -474,7 +483,7 @@ export default function PredictClient() {
                 : "surface-solid border-app txt-muted border"
             }`}
           >
-            🎯 적중률
+            {t("predict.sortAcc")}
           </button>
           <button
             type="button"
@@ -485,12 +494,12 @@ export default function PredictClient() {
                 : "surface-solid border-app txt-muted border"
             }`}
           >
-            🔥 스트릭
+            {t("predict.sortStreak")}
           </button>
         </div>
 
         {board && !board.connected ? (
-          <p className="txt-muted text-sm">리더보드는 곧 열려요</p>
+          <p className="txt-muted text-sm">{t("predict.lbClosed")}</p>
         ) : (
           <>
             {board && board.top.length > 0 ? (
@@ -537,7 +546,7 @@ export default function PredictClient() {
                         </span>
                         {e.isMe && (
                           <span className="btn-accent rounded-full px-1.5 py-0.5 text-[10px] font-bold">
-                            나
+                            {t("predict.me")}
                           </span>
                         )}
                       </span>
@@ -552,7 +561,7 @@ export default function PredictClient() {
                         </span>
                       ) : (
                         <span className="txt-strong whitespace-nowrap font-semibold">
-                          {e.streak}연속
+                          {t("predict.streakCount", { streak: e.streak })}
                         </span>
                       )}
                     </li>
@@ -560,9 +569,7 @@ export default function PredictClient() {
                 })}
               </ul>
             ) : (
-              <p className="txt-muted text-sm">
-                아직 순위가 없어요. 첫 예언의 주인공이 되어보세요!
-              </p>
+              <p className="txt-muted text-sm">{t("predict.noRanking")}</p>
             )}
 
             {/* 내 랭킹 하단 고정 */}
@@ -570,23 +577,23 @@ export default function PredictClient() {
               {board && board.me ? (
                 board.me.rank === 0 ? (
                   <p className="txt-muted text-sm">
-                    적중률 순위는 3회 이상 예측하면 등록돼요
+                    {t("predict.accNeedThree")}
                   </p>
                 ) : (
                   <p
                     className="surface-solid txt-accent flex items-center justify-between gap-2 rounded-xl border-2 px-4 py-3 text-sm font-semibold"
                     style={{ borderColor: "var(--accent-strong)" }}
                   >
-                    <span>내 순위 #{board.me.rank}</span>
+                    <span>{t("predict.myRank", { rank: board.me.rank })}</span>
                     <span className="whitespace-nowrap">
                       {lbSort === "acc"
                         ? accLabel(board.me.hits, board.me.total)
-                        : `${board.me.streak}연속`}
+                        : t("predict.streakCount", { streak: board.me.streak })}
                     </span>
                   </p>
                 )
               ) : (
-                <p className="txt-muted text-sm">아직 예언 기록이 없어요</p>
+                <p className="txt-muted text-sm">{t("predict.noRecord")}</p>
               )}
             </div>
           </>
@@ -595,7 +602,7 @@ export default function PredictClient() {
 
       {/* ---------- 하단 안내 ---------- */}
       <p className="txt-faint text-[11px] leading-relaxed">
-        재미로 보는 예측 게임입니다. 실제 투자 판단·수익과 무관해요.
+        {t("predict.footer")}
       </p>
     </div>
   );

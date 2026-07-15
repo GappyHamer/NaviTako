@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 type Status = "idle" | "sending" | "success" | "error";
 
@@ -8,6 +9,7 @@ const INPUT_CLASS =
   "surface-solid border-app txt border rounded-xl px-3 py-2 w-full text-sm";
 
 export default function ContactForm() {
+  const t = useTranslations("pages");
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [message, setMessage] = useState("");
@@ -51,11 +53,9 @@ export default function ContactForm() {
   if (status === "success") {
     return (
       <div className="surface rounded-2xl p-6 text-center space-y-4">
-        <p className="txt-strong text-sm">
-          ✅ 문의가 접수됐어요. 확인 후 회신드릴게요.
-        </p>
+        <p className="txt-strong text-sm">{t("contact.formSuccess")}</p>
         <button type="button" onClick={resetForm} className="btn-accent">
-          새 문의 작성
+          {t("contact.formNew")}
         </button>
       </div>
     );
@@ -77,7 +77,8 @@ export default function ContactForm() {
 
       <div className="space-y-1.5">
         <label htmlFor="contact-name" className="txt-muted text-sm block">
-          이름 <span className="txt-faint">(선택)</span>
+          {t("contact.labelName")}{" "}
+          <span className="txt-faint">{t("contact.optional")}</span>
         </label>
         <input
           id="contact-name"
@@ -92,7 +93,8 @@ export default function ContactForm() {
 
       <div className="space-y-1.5">
         <label htmlFor="contact-contact" className="txt-muted text-sm block">
-          연락처 <span className="txt-faint">(선택)</span>
+          {t("contact.labelContact")}{" "}
+          <span className="txt-faint">{t("contact.optional")}</span>
         </label>
         <input
           id="contact-contact"
@@ -101,14 +103,14 @@ export default function ContactForm() {
           onChange={(e) => setContact(e.target.value)}
           maxLength={120}
           autoComplete="off"
-          placeholder="회신받을 이메일 또는 텔레그램 @아이디"
+          placeholder={t("contact.contactPlaceholder")}
           className={INPUT_CLASS}
         />
       </div>
 
       <div className="space-y-1.5">
         <label htmlFor="contact-message" className="txt-muted text-sm block">
-          문의 내용
+          {t("contact.labelMessage")}
         </label>
         <textarea
           id="contact-message"
@@ -121,14 +123,14 @@ export default function ContactForm() {
       </div>
 
       <button type="submit" disabled={!canSubmit} className="btn-accent">
-        {status === "sending" ? "보내는 중…" : "문의 보내기"}
+        {status === "sending" ? t("contact.sending") : t("contact.send")}
       </button>
 
       {status === "error" && (
         <p className="txt-short text-sm">
           {errorKind === "disabled"
-            ? "지금은 문의 접수가 잠시 어려워요. 잠시 후 다시 시도해 주세요."
-            : "전송에 실패했어요. 잠시 후 다시 시도해 주세요."}
+            ? t("contact.errDisabled")
+            : t("contact.errOther")}
         </p>
       )}
     </form>

@@ -19,8 +19,8 @@ export async function generateMetadata({
 }: {
   params: Promise<Params>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const article = getGuideArticle(slug);
+  const { locale, slug } = await params;
+  const article = getGuideArticle(slug, locale);
   if (!article) return {};
   return {
     title: article.title,
@@ -37,11 +37,11 @@ export default async function GuideArticlePage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const article = getGuideArticle(slug);
+  const article = getGuideArticle(slug, locale);
   if (!article) notFound();
 
   // 이전/다음 글 내비게이션
-  const all = getAllGuideMeta();
+  const all = getAllGuideMeta(locale);
   const index = all.findIndex((g) => g.slug === slug);
   const prev = index > 0 ? all[index - 1] : null;
   const next = index >= 0 && index < all.length - 1 ? all[index + 1] : null;

@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { SITE_NAME } from "@/config/site";
 import { contactBotEnabled } from "@/lib/telegram";
 import ContactForm from "@/components/ContactForm";
 
-export const metadata: Metadata = {
-  title: "문의",
-  description:
-    "롱숏 예언에 대한 제안, 오류 제보, 광고·제휴 문의를 받는 페이지예요.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pages" });
+  return {
+    title: t("contact.metaTitle"),
+    description: t("contact.metaDescription"),
+  };
+}
 
 export default async function ContactPage({
   params,
@@ -18,50 +24,49 @@ export default async function ContactPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("pages");
 
   return (
     <div className="space-y-8 py-10">
       <header className="space-y-2">
-        <h1 className="txt-strong text-2xl font-bold">📮 문의</h1>
+        <h1 className="txt-strong text-2xl font-bold">{t("contact.heading")}</h1>
         <p className="txt-muted text-sm leading-relaxed">
-          제안·오류 제보·제휴 문의를 남겨주세요. 확인 후 회신드립니다.
+          {t("contact.intro")}
         </p>
       </header>
 
       <section className="space-y-4">
         {!contactBotEnabled && (
-          <p className="txt-faint text-xs">
-            문의 채널을 연결하는 중이에요. 곧 정상화됩니다.
-          </p>
+          <p className="txt-faint text-xs">{t("contact.disabledNotice")}</p>
         )}
         <ContactForm />
       </section>
 
       <section className="txt space-y-6 text-sm leading-relaxed">
         <div className="space-y-2">
-          <h2 className="txt-strong text-lg font-semibold">이런 문의를 받아요</h2>
+          <h2 className="txt-strong text-lg font-semibold">
+            {t("contact.acceptHeading")}
+          </h2>
           <ul className="list-disc space-y-1 pl-5">
-            <li>
-              사이트 오류·버그 제보 (기기와 브라우저 정보를 함께 주시면 큰
-              도움이 됩니다)
-            </li>
-            <li>새 기능이나 재미 멘트 아이디어 제안</li>
-            <li>가이드 콘텐츠의 오류 지적, 또는 다뤘으면 하는 주제 제안</li>
-            <li>광고·제휴 관련 문의</li>
+            <li>{t("contact.accept1")}</li>
+            <li>{t("contact.accept2")}</li>
+            <li>{t("contact.accept3")}</li>
+            <li>{t("contact.accept4")}</li>
           </ul>
         </div>
 
         <div className="space-y-2">
           <h2 className="txt-strong text-lg font-semibold">
-            답변이 어려운 문의
+            {t("contact.hardHeading")}
           </h2>
           <p>
-            투자 판단에 대한 질문(&ldquo;지금 롱인가요 숏인가요?&rdquo; 같은)에는
-            답변드리지 않아요. {SITE_NAME}은 오락 서비스이며, 자세한 내용은{" "}
-            <Link href="/disclaimer" className="link-accent">
-              면책조항
-            </Link>
-            을 확인해 주세요.
+            {t.rich("contact.hardBody", {
+              disclaimer: (chunks) => (
+                <Link href="/disclaimer" className="link-accent">
+                  {chunks}
+                </Link>
+              ),
+            })}
           </p>
         </div>
       </section>

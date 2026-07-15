@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useMessages, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
   computeReading,
@@ -12,8 +12,7 @@ import {
   type MarketIndicators,
   type OracleSide,
 } from "@/lib/oracle";
-import { LOADING_MESSAGES, LUCK_MODE_BADGE } from "@/config/ments";
-import { DISCLAIMER_CARD } from "@/config/site";
+import { LOADING_MESSAGES } from "@/config/ments";
 import {
   makeKeywordPhrase,
   SEED_POOLS,
@@ -108,16 +107,47 @@ async function fetchIndicators(): Promise<{
   }
 }
 
-function formatRemaining(ms: number): string {
-  const total = Math.max(0, Math.floor(ms / 1000));
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  return h > 0 ? `${h}시간 ${m}분 ${s}초` : `${m}분 ${s}초`;
-}
+/** 키워드 풀 메시지 형태 (fun 네임스페이스) */
+type FunMessages = {
+  loading?: string[];
+  kwSubjects?: string[];
+  kwSentimentLong?: string[];
+  kwSentimentShort?: string[];
+  kwTargets?: string[];
+};
 
 export default function OracleClient() {
   const tHero = useTranslations("hero");
+  const t = useTranslations("oracle");
+  const locale = useLocale();
+  const fun = (useMessages() as { fun?: FunMessages }).fun ?? {};
+
+  /** 로딩 문구 — 현재 로케일 fun.loading (없으면 ko 기본값) */
+  const loadingMessages =
+    fun.loading && fun.loading.length > 0 ? fun.loading : LOADING_MESSAGES;
+
+  /** 비-ko 로케일: messages 의 kw* 풀로 키워드 문구 생성 (ko 는 /api/keywords 유지) */
+  const localePools: KeywordPools = useMemo(
+    () => ({
+      subjects: fun.kwSubjects ?? [],
+      sentimentLong: fun.kwSentimentLong ?? [],
+      sentimentShort: fun.kwSentimentShort ?? [],
+      targets: fun.kwTargets ?? [],
+    }),
+    [fun.kwSubjects, fun.kwSentimentLong, fun.kwSentimentShort, fun.kwTargets]
+  );
+
+  /** 남은 쿨다운을 로케일 문구로 포맷 */
+  const formatRemaining = (ms: number): string => {
+    const total = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    return h > 0
+      ? t("cooldown.hms", { h, m, s })
+      : t("cooldown.ms", { m, s });
+  };
+
   const [phase, setPhase] = useState<Phase>("idle");
   const [messageIndex, setMessageIndex] = useState(0);
   const [result, setResult] = useState<OracleResult | null>(null);
@@ -236,7 +266,10 @@ export default function OracleClient() {
 
       const reading = computeReading(indicators);
       const side = drawOracle(reading.pLong);
-      const ment = makeKeywordPhrase(side, pools);
+      // ko 는 /api/keywords(트렌딩 반영) 풀, 그 외 로케일은 messages 의 kw* 풀
+      const activePools =
+        locale === "ko" && pools.targets.length ? pools : localePools;
+      const ment = makeKeywordPhrase(side, activePools);
       const res: OracleResult = {
         side,
         ment,
@@ -275,7 +308,7 @@ export default function OracleClient() {
       setPhase("revealed");
       playSound("reveal");
     },
-    [phase, cooldownUntil, pools]
+    [phase, cooldownUntil, pools, locale, localePools]
   );
 
   // 문어 클릭 = 예언. 쿨다운 중이면 광고 게이트 모달을 연다.
@@ -295,11 +328,11 @@ export default function OracleClient() {
   const share = useCallback(async () => {
     if (!result) return;
     const url = `${location.origin}/result/${result.side.toLowerCase()}?k=${encodeURIComponent(result.ment)}`;
-    const text = `🐙 예언가 Tako의 오늘 예언: ${result.side}! ${result.ment}`;
+    const text = `🐙 ${t("shareText", { side: result.side, ment: result.ment })}`;
 
     if (typeof navigator.share === "function") {
       try {
-        await navigator.share({ title: "롱숏 예언", text, url });
+        await navigator.share({ title: t("shareTitle"), text, url });
         return;
       } catch {
         return;
@@ -327,7 +360,7 @@ export default function OracleClient() {
         <div
           className="octo-hover relative cursor-pointer select-none"
           role="img"
-          aria-label="예언가 문어 Tako"
+          aria-label={t("octoAria")}
           tabIndex={0}
           onClick={onOcto}
         >
@@ -402,7 +435,7 @@ export default function OracleClient() {
           key={messageIndex}
           className="txt-accent animate-fade-up min-h-6 text-center text-base font-medium"
         >
-          {LOADING_MESSAGES[messageIndex % LOADING_MESSAGES.length]}
+          {loadingMessages[messageIndex % loadingMessages.length]}
         </p>
       )}
 
@@ -423,7 +456,7 @@ export default function OracleClient() {
             >
               {result.luckMode && (
                 <span className="surface txt-warn rounded-full px-3 py-1 text-xs font-medium">
-                  {LUCK_MODE_BADGE}
+                  {t("luckBadge")}
                 </span>
               )}
               <p
@@ -437,7 +470,7 @@ export default function OracleClient() {
                 {result.ment}
               </p>
               <p className="txt-faint mt-2 text-center text-[11px] leading-relaxed">
-                {DISCLAIMER_CARD}
+                {t("disclaimerCard")}
               </p>
             </div>
           </div>
@@ -446,7 +479,7 @@ export default function OracleClient() {
           {locked ? (
             <div className="flex w-full flex-col items-center gap-3">
               <p className="txt-muted text-center text-xs">
-                다음 예언까지{" "}
+                {t("cooldown.until")}{" "}
                 <span className="txt-strong tabular-nums font-semibold">
                   {formatRemaining(remaining)}
                 </span>
@@ -458,7 +491,7 @@ export default function OracleClient() {
                     onClick={() => setAdOpen(true)}
                     className="btn-accent rounded-xl px-5 py-2.5 text-sm font-semibold transition-transform active:scale-95"
                   >
-                    ⚡ 지금 바로 받기 ({MAX_SKIPS_PER_DAY - skipCount}회 남음)
+                    ⚡ {t("skip.remaining", { n: MAX_SKIPS_PER_DAY - skipCount })}
                   </button>
                 )}
                 <button
@@ -466,13 +499,13 @@ export default function OracleClient() {
                   onClick={share}
                   className="surface txt rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors hover:opacity-80"
                 >
-                  {copied ? "✅ 복사됨!" : "📤 결과 공유"}
+                  {copied ? `✅ ${t("copied")}` : `📤 ${t("share")}`}
                 </button>
               </div>
               <p className="txt-faint text-center text-[10px]">
                 {skipCount < MAX_SKIPS_PER_DAY
-                  ? "예언할수록 다음 텀이 조금씩 길어져요. 바로받기는 하루 3번(자정 초기화)."
-                  : "오늘 바로받기를 다 썼어요. 자정에 다시 채워져요."}
+                  ? t("cooldown.help", { n: MAX_SKIPS_PER_DAY })
+                  : t("cooldown.exhausted")}
               </p>
             </div>
           ) : (
@@ -482,14 +515,14 @@ export default function OracleClient() {
                 onClick={() => void summon()}
                 className="surface txt rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors hover:opacity-80"
               >
-                🔁 다시 예언 받기
+                🔁 {t("again")}
               </button>
               <button
                 type="button"
                 onClick={share}
                 className="btn-accent rounded-xl px-5 py-2.5 text-sm font-semibold transition-transform active:scale-95"
               >
-                {copied ? "✅ 복사됨!" : "📤 결과 공유"}
+                {copied ? `✅ ${t("copied")}` : `📤 ${t("share")}`}
               </button>
             </div>
           )}
@@ -499,7 +532,7 @@ export default function OracleClient() {
             href="/predict"
             className="border-app surface txt flex w-full items-center justify-center gap-1.5 rounded-xl border px-5 py-3 text-sm font-semibold transition-colors hover:opacity-80"
           >
-            🔮 내가 직접 예언하기 →
+            🔮 {t("predictSelf")} →
           </Link>
         </div>
       )}
@@ -519,6 +552,7 @@ function AdGateModal({
   onClose: () => void;
   onDone: () => void;
 }) {
+  const t = useTranslations("oracle");
   const [left, setLeft] = useState(3);
 
   useEffect(() => {
@@ -534,7 +568,7 @@ function AdGateModal({
       className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      aria-label="지금 바로 예언 받기"
+      aria-label={t("ad.aria")}
       onClick={onClose}
     >
       <div
@@ -542,19 +576,18 @@ function AdGateModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <p className="txt-strong text-sm font-bold">⚡ 지금 바로 받기</p>
+          <p className="txt-strong text-sm font-bold">⚡ {t("ad.title")}</p>
           <button
             type="button"
             onClick={onClose}
-            aria-label="닫기"
+            aria-label={t("ad.close")}
             className="txt-faint hover:opacity-70"
           >
             ✕
           </button>
         </div>
         <p className="txt-muted mt-2 text-xs leading-relaxed">
-          잠깐만 기다리면 쿨다운 없이 지금 바로 예언을 받을 수
-          있어요.
+          {t("ad.desc")}
         </p>
 
         {/* 리워드 광고 자리 (승인 후 실제 광고로 교체) */}
@@ -568,7 +601,7 @@ function AdGateModal({
             ready ? "btn-accent" : "surface txt-faint cursor-not-allowed"
           }`}
         >
-          {ready ? "🔮 지금 예언 받기" : `${left}초 후 받을 수 있어요`}
+          {ready ? `🔮 ${t("ad.confirm")}` : t("ad.wait", { n: left })}
         </button>
       </div>
     </div>

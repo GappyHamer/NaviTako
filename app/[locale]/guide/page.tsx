@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getAllGuideMeta } from "@/lib/guide";
 
-export const metadata: Metadata = {
-  title: "가이드, 크립토 지표 교실",
-  description:
-    "공포탐욕지수, 펀딩비, 롱숏비율부터 레버리지의 수학까지. Tako가 예언에 쓰는 시장 지표를 쉽게 풀어쓴 교육 콘텐츠 모음이에요.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pages" });
+  return {
+    title: t("guideList.metaTitle"),
+    description: t("guideList.metaDescription"),
+  };
+}
 
 export default async function GuidePage({
   params,
@@ -16,17 +23,18 @@ export default async function GuidePage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("pages");
 
   const guides = getAllGuideMeta();
 
   return (
     <div className="space-y-8 py-10">
       <header className="space-y-2">
-        <h1 className="txt-strong text-2xl font-bold">📚 가이드</h1>
+        <h1 className="txt-strong text-2xl font-bold">
+          {t("guideList.heading")}
+        </h1>
         <p className="txt-muted text-sm leading-relaxed">
-          Tako가 예언을 내릴 때 읽는 지표들, 그리고 크립토 시장을 이해하는 데
-          필요한 기초 개념을 쉬운 말로 정리했어요. 마지막 글에서는 이 사이트의
-          예언 알고리즘을 수식까지 전부 공개합니다.
+          {t("guideList.intro")}
         </p>
       </header>
 

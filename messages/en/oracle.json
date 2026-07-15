@@ -1,0 +1,54 @@
+{
+  "oracle": {
+    "octoAria": "Tako the oracle octopus",
+    "luckBadge": "Pure luck mode today 🎲",
+    "disclaimerCard": "This result is entertainment content, not investment advice or a recommendation. Every decision and its consequences are yours alone.",
+    "again": "Draw again",
+    "share": "Share result",
+    "copied": "Copied!",
+    "shareText": "Tako's oracle for today: {side}! {ment}",
+    "shareTitle": "Long/Short Oracle",
+    "predictSelf": "Make your own call",
+    "cooldown": {
+      "until": "Next oracle in",
+      "hms": "{h}h {m}m {s}s",
+      "ms": "{m}m {s}s",
+      "help": "Each oracle stretches the next wait a little. Instant draws: {n} a day (resets at midnight).",
+      "exhausted": "Out of instant draws for today. They refill at midnight."
+    },
+    "skip": {
+      "now": "Get it now",
+      "remaining": "Get it now ({n} left)"
+    },
+    "ad": {
+      "title": "Get it now",
+      "aria": "Get your oracle right now",
+      "close": "Close",
+      "desc": "Wait just a moment and skip the cooldown to get your oracle right now.",
+      "confirm": "Get my oracle now",
+      "wait": "Ready in {n}s"
+    },
+    "accuracy": {
+      "title": "Tako's oracle scorecard (just for fun)",
+      "sectionAria": "Tako oracle scorecard",
+      "distribution": "Today's oracle split",
+      "totalCount": "{n} total",
+      "aggregating": "Tallying",
+      "refresh": "Refresh",
+      "longPct": "Long {n}%",
+      "shortPct": "Short {n}%",
+      "waitingFirst": "Waiting for today's first oracle.",
+      "win": {
+        "1h": "1H",
+        "1d": "1D",
+        "1w": "1W",
+        "1mo": "1M",
+        "1y": "1Y",
+        "all": "All"
+      },
+      "hitSummary": "{hits} of {total} oracles landed",
+      "previewNote": "Real stats kick in once enough pile up (preview for now)",
+      "disclaimer": "* A for-fun stat tracking whether the direction was right versus the price at oracle time. Unrelated to real returns — the octopus's oracle is basically a coin flip."
+    }
+  }
+}
