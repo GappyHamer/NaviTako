@@ -40,6 +40,7 @@ type OracleResult = {
   ment: string;
   label: string;
   luckMode: boolean;
+  at?: number; // 예언한 시각(ms)
 };
 
 /** 두근두근 연출 최소 시간 (스펙: 2~3초) */
@@ -276,6 +277,7 @@ export default function OracleClient() {
         ment,
         label: currentLabel(reading.S),
         luckMode: allFailed || reading.luckMode,
+        at: Date.now(),
       };
       // 에스컬레이션 쿨다운 + 카운트 (localStorage 최신값으로 stale 방지)
       const now = Date.now();
@@ -473,6 +475,15 @@ export default function OracleClient() {
               <p className="txt-faint mt-2 text-center text-[11px] leading-relaxed">
                 {tDisc("card")}
               </p>
+              {result.at && (
+                <p className="txt-faint text-center text-[11px] tabular-nums">
+                  🕐{" "}
+                  {new Date(result.at).toLocaleString(locale, {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </p>
+              )}
             </div>
           </div>
 
