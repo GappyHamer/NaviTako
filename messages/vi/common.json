@@ -20,5 +20,18 @@
   },
   "lang": {
     "label": "Ngôn ngữ"
+  },
+  "meta": {
+    "title": "TTakochan — Nhà tiên tri Bitcoin long/short, chỉ để cho vui",
+    "description": "Bạch tuộc tiên tri Tako đọc các chỉ số thị trường theo thời gian thực và phán long hay short cho Bitcoin. Thuần giải trí, chỉ để cho vui."
+  },
+  "disclaimer": {
+    "footer": "Trang này là dịch vụ giải trí chỉ để cho vui và không đưa ra bất kỳ khuyến nghị mua bán sản phẩm tài chính hay tư vấn đầu tư nào. Giao dịch hợp đồng tương lai và đòn bẩy có rủi ro mất toàn bộ vốn.",
+    "card": "Kết quả này là nội dung giải trí, không phải lời khuyên hay khuyến nghị đầu tư. Mọi quyết định giao dịch và trách nhiệm đều thuộc về bạn."
+  },
+  "homeAlgo": {
+    "heading": "🐙 Tako không chỉ đoán bừa đâu",
+    "p1": "Tako đọc năm chỉ số thị trường thật: chỉ số sợ hãi & tham lam, phí funding, tỷ lệ vị thế của các trader top, tỷ lệ long/short của toàn bộ tài khoản, và động lượng 24 giờ. Từ đó nó nghiêng xác suất đi một chút rồi rút ra long hoặc short trong khoảng sai số ấy. Không bao giờ chốt bên nào ở mức 100% — đó là nguyên tắc duy nhất của lời tiên tri này.",
+    "p2": "Tò mò về cách tính? Trong <algo>bài viết công khai toàn bộ thuật toán</algo> bạn có thể xem tới tận công thức, còn không khí thị trường hiện tại thì xem ở <market>trang Nhiệt độ thị trường</market>. Tất nhiên, tất cả chỉ là giải trí cho vui, không phải lời khuyên đầu tư."
   }
 }

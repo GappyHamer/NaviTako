@@ -20,5 +20,18 @@
   },
   "lang": {
     "label": "Bahasa"
+  },
+  "meta": {
+    "title": "TTakochan — Ramalan Bitcoin long/short, sekadar hiburan",
+    "description": "Gurita peramal Tako membaca indikator pasar secara real-time dan menyebut long atau short untuk Bitcoin. Murni hiburan, sekadar buat senang-senang."
+  },
+  "disclaimer": {
+    "footer": "Situs ini adalah layanan hiburan semata untuk bersenang-senang dan tidak memberikan ajakan jual beli produk keuangan apa pun maupun nasihat investasi. Trading futures dan dengan leverage berisiko kehilangan seluruh modal Anda.",
+    "card": "Hasil ini adalah konten hiburan, bukan nasihat atau rekomendasi investasi. Semua keputusan trading dan tanggung jawabnya ada pada Anda."
+  },
+  "homeAlgo": {
+    "heading": "🐙 Tako bukan asal tebak",
+    "p1": "Tako membaca lima indikator pasar sungguhan: indeks fear & greed, funding rate, rasio posisi para trader top, rasio long/short seluruh akun, dan momentum 24 jam. Dari situ ia sedikit memiringkan probabilitas, lalu menarik long atau short dalam margin tersebut. Tidak pernah mematok salah satu sisi di 100% adalah satu-satunya aturan ramalan ini.",
+    "p2": "Penasaran cara hitungnya? Di <algo>artikel yang membuka seluruh algoritma</algo> kamu bisa lihat sampai rumusnya, dan suasana pasar saat ini bisa dicek di <market>halaman Suasana Pasar</market>. Tentu saja, semua ini hiburan buat senang-senang, bukan nasihat investasi."
   }
 }

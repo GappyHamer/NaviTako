@@ -119,6 +119,7 @@ type FunMessages = {
 export default function OracleClient() {
   const tHero = useTranslations("hero");
   const t = useTranslations("oracle");
+  const tDisc = useTranslations("disclaimer");
   const locale = useLocale();
   const fun = (useMessages() as { fun?: FunMessages }).fun ?? {};
 
@@ -470,7 +471,7 @@ export default function OracleClient() {
                 {result.ment}
               </p>
               <p className="txt-faint mt-2 text-center text-[11px] leading-relaxed">
-                {t("disclaimerCard")}
+                {tDisc("card")}
               </p>
             </div>
           </div>

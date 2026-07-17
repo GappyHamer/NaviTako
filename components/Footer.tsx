@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import SocialLinks from "@/components/SocialLinks";
-import { DISCLAIMER_FOOTER, SITE_NAME } from "@/config/site";
+import { SITE_NAME } from "@/config/site";
 
 const FOOTER_LINKS = [
   { href: "/about", key: "about" },
@@ -13,6 +13,7 @@ const FOOTER_LINKS = [
 
 export default function Footer() {
   const t = useTranslations("footer");
+  const td = useTranslations("disclaimer");
 
   return (
     <footer className="border-app mt-16 border-t px-4 py-8">
@@ -30,7 +31,7 @@ export default function Footer() {
           </ul>
         </nav>
         <p className="txt-faint text-[11px] leading-relaxed">
-          {DISCLAIMER_FOOTER}
+          {td("footer")}
         </p>
         <p className="txt-faint text-[11px]">
           © {new Date().getFullYear()} {SITE_NAME}{" "}

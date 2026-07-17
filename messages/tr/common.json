@@ -20,5 +20,18 @@
   },
   "lang": {
     "label": "Dil"
+  },
+  "meta": {
+    "title": "TTakochan — Bitcoin long/short kehaneti, sırf eğlence için",
+    "description": "Kâhin ahtapot Tako canlı piyasa göstergelerini okuyup Bitcoin için long ya da short der. Tamamen eğlence, sırf keyif için."
+  },
+  "disclaimer": {
+    "footer": "Bu site yalnızca eğlence amaçlı bir hizmettir; hiçbir finansal ürünün alım satımına yönelik tavsiye veya yatırım danışmanlığı sunmaz. Vadeli işlem ve kaldıraçlı işlemler anaparanızın tamamını kaybetme riski taşır.",
+    "card": "Bu sonuç eğlence amaçlı bir içeriktir; yatırım tavsiyesi veya önerisi değildir. Tüm işlem kararları ve sorumluluk size aittir."
+  },
+  "homeAlgo": {
+    "heading": "🐙 Tako öylesine tahmin etmiyor",
+    "p1": "Tako beş gerçek piyasa göstergesini okur: korku ve açgözlülük endeksi, fonlama oranları (funding), üst düzey trader'ların pozisyon oranı, tüm hesapların long/short oranı ve 24 saatlik momentum. Bunlarla olasılığı azıcık eğer, sonra o hata payı içinde long ya da short çeker. Hiçbir tarafı %100 kesinleştirmemek, bu kehanetin tek kuralıdır.",
+    "p2": "Hesabı merak ettin mi? <algo>Algoritmanın tamamını açıklayan yazıda</algo> formüllere kadar görebilirsin, şu anki piyasa havasını da <market>Piyasa Havası sayfasında</market> kontrol edebilirsin. Tabii tüm bunlar eğlence için, yatırım tavsiyesi değil."
   }
 }

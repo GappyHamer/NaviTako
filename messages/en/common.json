@@ -20,5 +20,18 @@
   },
   "lang": {
     "label": "Language"
+  },
+  "meta": {
+    "title": "TTakochan — Bitcoin Long/Short Oracle, Just for Fun",
+    "description": "Tako the oracle octopus reads live market indicators and calls Bitcoin long or short. Pure entertainment, just for fun."
+  },
+  "disclaimer": {
+    "footer": "This site is an entertainment service made purely for fun and does not provide any solicitation to trade financial products or any investment advice. Futures and leveraged trading carry the risk of losing your entire principal.",
+    "card": "This result is entertainment content, not investment advice or a recommendation. Every trading decision and its responsibility are your own."
+  },
+  "homeAlgo": {
+    "heading": "🐙 Tako isn't just guessing",
+    "p1": "Tako reads five real market indicators: the Fear & Greed Index, funding rates, the position ratio of top traders, the long/short ratio across all accounts, and 24-hour momentum. It tilts the odds a little based on these, then draws either long or short within that margin. Never locking in either side at 100% is this oracle's one and only rule.",
+    "p2": "Curious about the math? The <algo>full algorithm write-up</algo> lays out the formulas, and you can check the current market mood on the <market>Market Mood page</market>. Of course, all of this is entertainment for fun, not investment advice."
   }
 }

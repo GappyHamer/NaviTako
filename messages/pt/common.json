@@ -20,5 +20,18 @@
   },
   "lang": {
     "label": "Idioma"
+  },
+  "meta": {
+    "title": "TTakochan — Oráculo de Bitcoin long/short, só por diversão",
+    "description": "Tako, o polvo oráculo, lê indicadores de mercado ao vivo e canta long ou short no Bitcoin. Puro entretenimento, só por diversão."
+  },
+  "disclaimer": {
+    "footer": "Este site é um serviço de entretenimento feito só por diversão e não oferece qualquer recomendação de compra e venda de produtos financeiros nem consultoria de investimento. Operar futuros e com alavancagem tem o risco de perder todo o seu capital.",
+    "card": "Este resultado é conteúdo de entretenimento, não é recomendação nem consultoria de investimento. Todas as decisões de trading e a responsabilidade são suas."
+  },
+  "homeAlgo": {
+    "heading": "🐙 O Tako não chuta no escuro",
+    "p1": "O Tako lê cinco indicadores reais do mercado: o índice de medo e ganância, as taxas de financiamento (funding), a proporção de posições dos traders top, a proporção long/short de todas as contas e o momentum de 24 horas. Com isso ele inclina um pouco a probabilidade e então sorteia long ou short dentro dessa margem. Nunca cravar nenhum lado em 100% é a única regra deste oráculo.",
+    "p2": "Ficou curioso sobre as contas? No <algo>artigo com o algoritmo completo</algo> dá para ver até as fórmulas, e o clima atual do mercado você confere na <market>página Clima do mercado</market>. Claro, tudo isso é entretenimento por diversão, não é conselho de investimento."
   }
 }

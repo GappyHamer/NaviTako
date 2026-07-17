@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import "../globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -10,7 +10,7 @@ import { routing } from "@/i18n/routing";
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
-  SITE_TITLE,
+  SITE_NAME_EN,
   SITE_URL,
 } from "@/config/site";
 
@@ -44,14 +44,19 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  const metaTitle = t("title");
+  const metaDescription = t("description");
+  // 브랜드 접미사(하위 페이지 제목용) — ko 는 한글 브랜드, 그 외는 로케일 중립 영문 브랜드
+  const brand = locale === routing.defaultLocale ? SITE_NAME : SITE_NAME_EN;
 
   return {
     metadataBase: new URL(SITE_URL),
     title: {
-      default: SITE_TITLE,
-      template: `%s | ${SITE_NAME}`,
+      default: metaTitle,
+      template: `%s | ${brand}`,
     },
-    description: SITE_DESCRIPTION,
+    description: metaDescription,
     keywords: [
       "비트코인",
       "롱숏",
@@ -69,13 +74,13 @@ export async function generateMetadata({
       type: "website",
       locale,
       siteName: SITE_NAME_SEARCH,
-      title: SITE_TITLE,
-      description: SITE_DESCRIPTION,
+      title: metaTitle,
+      description: metaDescription,
     },
     twitter: {
       card: "summary_large_image",
-      title: SITE_TITLE,
-      description: SITE_DESCRIPTION,
+      title: metaTitle,
+      description: metaDescription,
     },
     robots: { index: true, follow: true },
     ...(Object.keys(verificationOther).length > 0
