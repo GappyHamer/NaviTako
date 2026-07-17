@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import PredictionChart from "@/components/PredictionChart";
 
 /**
  * Tako 예언 성적표 (재미로 보는).
@@ -161,6 +162,11 @@ export default function AccuracyWidget() {
             : t("accuracy.previewNote")}
         </p>
       </div>
+
+      <hr className="border-app my-4" />
+
+      {/* 예언 차트 — 가격 선 위에 예언 시점 마커(적중=초록/빗나감=빨강) */}
+      <PredictionChart />
 
       <p className="txt-faint mt-3 text-center text-[10px] leading-relaxed">
         {t("accuracy.disclaimer")}

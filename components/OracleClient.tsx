@@ -59,6 +59,31 @@ const LS_UNTIL = "tako:cooldownUntil";
 const LS_DAY = "tako:day"; // 카운트 기준 날짜(KST)
 const LS_DRAW = "tako:drawCount"; // 오늘 예언 횟수 → 쿨다운 에스컬레이션
 const LS_SKIP = "tako:skipCount"; // 오늘 '지금 바로 받기' 사용 횟수
+const LS_HISTORY = "tako:history"; // 예언 이력 (예언 차트용, 최근 30개)
+const HISTORY_MAX = 30;
+
+/** 예언 이력 append — { side, at } 를 최근 HISTORY_MAX개만 유지. 저장 후 차트 갱신 이벤트 발생. */
+function appendHistory(side: OracleSide, at: number): void {
+  try {
+    const raw = localStorage.getItem(LS_HISTORY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    const list = Array.isArray(parsed)
+      ? (parsed as { side: OracleSide; at: number }[])
+      : [];
+    list.push({ side, at });
+    localStorage.setItem(
+      LS_HISTORY,
+      JSON.stringify(list.slice(-HISTORY_MAX))
+    );
+  } catch {
+    // 저장 실패해도 본 예언 흐름에는 영향 없음
+  }
+  try {
+    window.dispatchEvent(new Event("tako:prediction"));
+  } catch {
+    // 이벤트 발생 불가 환경 → 무시
+  }
+}
 
 /** KST 기준 날짜 키 (YYYY-MM-DD) */
 function kstDayKey(now: number): string {
@@ -308,6 +333,8 @@ export default function OracleClient() {
       } catch {
         // 저장 실패해도 화면 표시는 정상 동작
       }
+      // 예언 차트용 이력 저장 (기존 저장 로직과 독립, 실패해도 무해)
+      appendHistory(side, res.at ?? now);
       setPhase("revealed");
       playSound("reveal");
     },

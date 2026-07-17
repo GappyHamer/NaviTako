@@ -49,6 +49,20 @@
       "hitSummary": "예언 {total}건 중 {hits}건 적중",
       "previewNote": "집계가 쌓이면 진짜 성적으로 바뀌어요 (지금은 미리보기)",
       "disclaimer": "* 예언 시점 가격 대비 방향이 맞았는지를 집계한 오락용 통계입니다. 실제 수익률과 무관하고, 문어의 예언은 동전 던지기에 가깝다는 걸 잊지 마세요."
+    },
+    "chart": {
+      "title": "예언 차트",
+      "subtitle": "BTC 최근 48시간 가격 위에 Tako의 예언 시점을 찍어봤어요",
+      "sectionAria": "Tako 예언 차트",
+      "summary": "최근 {n}번 중 {m}번 적중",
+      "legendLong": "▲ 롱",
+      "legendShort": "▼ 숏",
+      "legendHit": "초록 = 적중",
+      "legendMiss": "빨강 = 빗나감",
+      "empty": "아직 예언 기록이 없어요. 문어를 눌러 첫 예언을 받아보세요.",
+      "emptyInRange": "최근 48시간 안에는 예언 기록이 없어요.",
+      "loading": "차트를 불러오는 중…",
+      "noPrice": "가격 데이터를 불러오지 못했어요. 잠시 후 다시 열어보세요."
     }
   }
 }
