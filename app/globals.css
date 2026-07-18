@@ -22,6 +22,10 @@
   --long: #34d399;
   --short: #f87171;
   --warn: #fbbf24;
+  /* 스프링 근사 이징 — critically damped 느낌(오버슈트 없음), response ~0.3s.
+     테마 무관 상수라 :root 에만 두면 라이트 테마도 상속받는다. */
+  --ease-spring: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 [data-theme="light"] {
@@ -64,7 +68,41 @@ body {
     -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard",
     "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   -webkit-font-smoothing: antialiased;
+  /* 시스템 폰트의 옵티컬 사이징을 크기에 맞춰 자동 적용 */
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
   overflow-x: hidden; /* 연출 파티클이 넓게 퍼져도 가로 스크롤 방지 */
+  /* 다크↔라이트 전환을 급작스럽지 않게 (색상만 완만히) */
+  transition:
+    background-color 0.4s var(--ease-out),
+    color 0.4s var(--ease-out);
+}
+
+/* ---------- 타이포그래피: 크기별 트래킹(Apple 규칙) ----------
+   큰 제목일수록 음의 letter-spacing(모아서 위계), 본문(≤text-lg)은 0 근처 유지.
+   em 단위라 폰트 크기에 비례해 스케일. text-xl 은 규칙을 두지 않아
+   컴포넌트의 명시적 tracking-wide/tracking-tight 를 침범하지 않는다.
+   (unlayered → Tailwind 유틸리티보다 우선) */
+.text-2xl {
+  letter-spacing: -0.014em;
+}
+.text-3xl {
+  letter-spacing: -0.019em;
+}
+.text-4xl {
+  letter-spacing: -0.022em;
+}
+.text-5xl {
+  letter-spacing: -0.025em;
+}
+.text-6xl {
+  letter-spacing: -0.028em;
+}
+.text-7xl {
+  letter-spacing: -0.03em;
+}
+.text-8xl {
+  letter-spacing: -0.032em;
 }
 
 /* ---------- 시맨틱 색상/표면 유틸 (unlayered → tailwind 유틸보다 우선) ---------- */
@@ -95,13 +133,19 @@ body {
 }
 
 .surface {
-  /* raw backdrop-filter 는 Lightning CSS 가 드롭 → Tailwind 유틸리티로 적용 */
-  @apply backdrop-blur-md backdrop-saturate-150;
+  /* raw backdrop-filter 는 Lightning CSS 가 드롭 → Tailwind 유틸리티로 적용.
+     큰 표면일수록 두꺼운 머티리얼 → 강화된 blur + saturate 로 유리 질감. */
+  @apply backdrop-blur-xl backdrop-saturate-150;
   background-color: var(--card);
   border: 1px solid var(--border);
+  /* 깊은 그림자(머티리얼 두께감) + 상단 inner 하이라이트(빛 받는 유리 엣지) */
   box-shadow:
-    0 10px 34px -14px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 12px 40px -16px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  /* 테마 전환 시 색만 완만히 (blur/transform 은 건드리지 않음 → 성능 유지) */
+  transition:
+    background-color 0.4s var(--ease-out),
+    border-color 0.4s var(--ease-out);
 }
 .surface-solid {
   background-color: var(--card-solid);
@@ -120,9 +164,29 @@ body {
 }
 
 .app-header {
-  background-color: color-mix(in oklab, var(--bg) 70%, transparent);
-  border-bottom: 1px solid var(--border);
-  /* 블러는 마크업의 backdrop-blur 유틸리티가 담당 (raw 속성은 드롭됨) */
+  background-color: color-mix(in oklab, var(--bg) 68%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 75%, transparent);
+  /* 블러는 마크업의 backdrop-blur 유틸리티가 담당 (raw 속성은 드롭됨).
+     상단 엣지 하이라이트 = 유리가 빛을 받는 느낌(다크에서만 보임). */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: background-color 0.4s var(--ease-out);
+}
+
+/* 스티키 헤더와 스크롤 콘텐츠가 만나는 경계 — 하드 divider 대신 스크롤 엣지 페이드.
+   sticky 인 상단 헤더에만 적용(모바일 드롭다운 .app-header 는 제외). */
+.app-header.sticky::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 16px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--bg) 55%, transparent),
+    transparent
+  );
+  pointer-events: none;
 }
 
 .btn-accent {
@@ -133,14 +197,21 @@ body {
   );
   color: #fff;
   box-shadow: 0 6px 22px -8px color-mix(in oklab, var(--accent) 75%, transparent);
+  /* 스프링 근사 이징(오버슈트 없음) — 즉각적이되 부드럽게 */
   transition:
-    filter 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.1s ease;
+    filter 0.25s var(--ease-spring),
+    box-shadow 0.25s var(--ease-spring),
+    transform 0.12s var(--ease-out);
+  will-change: transform;
 }
 .btn-accent:hover {
   filter: brightness(1.08);
   box-shadow: 0 10px 28px -8px color-mix(in oklab, var(--accent) 85%, transparent);
+}
+/* 누르는 즉시 피드백(pointer-down 순간) — 살짝 눌리는 물성 */
+.btn-accent:active {
+  transform: scale(0.97);
+  transition: transform 0.1s var(--ease-out);
 }
 
 /* ---------- 문어 연출 (transform/opacity만 사용 → 60fps) ---------- */
@@ -504,5 +575,44 @@ body {
   }
   .octo-glow:hover {
     filter: none !important;
+  }
+  /* 테마 색 전환도 즉시로 (완만한 페이드 제거) */
+  body,
+  .surface,
+  .app-header {
+    transition: none !important;
+  }
+}
+
+/* ---------- 접근성: 투명도 최소화 ---------- */
+/* 반투명 레이어를 불투명하게 — blur 제거 + 배경 opacity↑ */
+@media (prefers-reduced-transparency: reduce) {
+  .surface {
+    background-color: var(--card-solid);
+    backdrop-filter: none;
+  }
+  .app-header,
+  .app-header.sticky {
+    background-color: var(--bg);
+    backdrop-filter: none;
+  }
+  .app-header.sticky::after {
+    display: none;
+  }
+}
+
+/* ---------- 접근성: 고대비 ---------- */
+/* 표면을 거의 불투명 + 명확한 대비 보더 */
+@media (prefers-contrast: more) {
+  .surface {
+    background-color: var(--card-solid);
+    border-color: var(--fg-muted);
+    backdrop-filter: none;
+  }
+  .app-header,
+  .app-header.sticky {
+    background-color: var(--bg);
+    border-bottom-color: var(--fg-muted);
+    backdrop-filter: none;
   }
 }

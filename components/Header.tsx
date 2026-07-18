@@ -25,7 +25,7 @@ export default function Header() {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header className="app-header sticky top-0 z-50 backdrop-blur">
+    <header className="app-header sticky top-0 z-50 backdrop-blur-xl backdrop-saturate-150">
       <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
         {/* 브랜드는 문어 아이콘만 */}
         <Link
@@ -86,7 +86,7 @@ export default function Header() {
       {open && (
         <nav
           aria-label="모바일 메뉴"
-          className="app-header border-app border-t sm:hidden"
+          className="app-header border-app border-t backdrop-blur-xl backdrop-saturate-150 sm:hidden"
         >
           <ul className="mx-auto flex max-w-3xl flex-col gap-1 px-4 py-3 text-sm">
             {NAV_TABS.map((tab) => (
