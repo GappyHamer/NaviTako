@@ -25,7 +25,7 @@ export default async function GuidePage({
   setRequestLocale(locale);
   const t = await getTranslations("pages");
 
-  const guides = getAllGuideMeta();
+  const guides = getAllGuideMeta(locale);
 
   return (
     <div className="space-y-8 py-10">
