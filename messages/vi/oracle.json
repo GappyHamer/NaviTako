@@ -1,5 +1,9 @@
 {
   "oracle": {
+    "hint": {
+      "tapOcto": "Chạm vào bạch tuộc để nhận lời sấm",
+      "sweepCard": "Vuốt thẻ để hé xem — chạm để mở"
+    },
     "octoAria": "Bạch tuộc tiên tri Tako",
     "luckBadge": "Hôm nay là chế độ hên xui 100% 🎲",
     "disclaimerCard": "Kết quả này chỉ mang tính giải trí, không phải lời khuyên hay khuyến nghị đầu tư. Mọi quyết định đầu tư và trách nhiệm hoàn toàn thuộc về bạn.",

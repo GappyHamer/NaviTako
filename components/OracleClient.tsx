@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties } from "react";
 import { useLocale, useMessages, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
@@ -18,22 +17,20 @@ import {
   SEED_POOLS,
   type KeywordPools,
 } from "@/config/keywords";
+import dynamic from "next/dynamic";
 import AdSlot from "@/components/AdSlot";
+import GooParticles from "@/components/GooParticles";
+import GuideArrow from "@/components/GuideArrow";
 import { playSound } from "@/lib/sound";
 
-type Phase = "idle" | "summoning" | "revealed";
-
-/** 소환 시 카드 중심으로 수렴하는 파티클 (반지름 ~150px 원 둘레 분포) */
-const SUMMON_PARTICLES = Array.from({ length: 16 }, (_, i) => {
-  const angle = (i / 16) * Math.PI * 2 + (i % 3) * 0.15;
-  const radius = 260 + (i % 4) * 35; // 260~365px, 넓은 영역에서 응집
-  return {
-    dx: Math.round(Math.cos(angle) * radius),
-    dy: Math.round(Math.sin(angle) * radius),
-    delay: Number(((i % 6) * 0.1).toFixed(2)),
-    duration: Number((1.15 + (i % 3) * 0.22).toFixed(2)),
-  };
+/* framer-motion 을 쓰는 SpotlightText 는 mystery 단계에서만 필요 →
+   초기 번들에서 제외하고 진입 시점에 청크 로드(LCP 보호) */
+const SpotlightText = dynamic(() => import("@/components/SpotlightText"), {
+  ssr: false,
 });
+
+/** 미스터리 리빙 플로우 phase 머신 */
+type Phase = "idle" | "summoning" | "mystery" | "revealed";
 
 type OracleResult = {
   side: OracleSide;
@@ -143,7 +140,6 @@ type FunMessages = {
 };
 
 export default function OracleClient() {
-  const tHero = useTranslations("hero");
   const t = useTranslations("oracle");
   const tDisc = useTranslations("disclaimer");
   const locale = useLocale();
@@ -191,6 +187,23 @@ export default function OracleClient() {
   // 마운트 시 이전 결과·쿨다운 복원 (없으면 idle 유지 → SSR과 일치)
   useEffect(() => {
     mountedRef.current = true;
+    // 미스터리 리빙 플로우 도입: 기존 방문자도 새 흐름을 처음부터 경험하도록
+    // 저장된 이전 상태를 1회 마이그레이션(초기화)한다. (복원 로직보다 먼저)
+    try {
+      if (localStorage.getItem("tako:ver") !== "2") {
+        [
+          LS_RESULT,
+          LS_UNTIL,
+          LS_DAY,
+          LS_DRAW,
+          LS_SKIP,
+          LS_HISTORY,
+        ].forEach((k) => localStorage.removeItem(k));
+        localStorage.setItem("tako:ver", "2");
+      }
+    } catch {
+      // 저장소 접근 불가 → 마이그레이션 생략(그대로 진행)
+    }
     try {
       const raw = localStorage.getItem(LS_RESULT);
       const until = Number(localStorage.getItem(LS_UNTIL));
@@ -335,7 +348,9 @@ export default function OracleClient() {
       }
       // 예언 차트용 이력 저장 (기존 저장 로직과 독립, 실패해도 무해)
       appendHistory(side, res.at ?? now);
-      setPhase("revealed");
+      // 새 플로우: 곧바로 펼치지 않고 미스터리(가려진 스포트라이트) 단계로.
+      // 사용자가 카드를 쓸어 확인한 뒤 눌러서 revealed 로 펼친다.
+      setPhase("mystery");
       playSound("reveal");
     },
     [phase, cooldownUntil, pools, locale, localePools]
@@ -389,10 +404,16 @@ export default function OracleClient() {
         {/* 호버 스케일(transform) → grow(transform) → 흔들림/bob(transform) 중첩 */}
         <div
           className="octo-hover relative cursor-pointer select-none"
-          role="img"
+          role="button"
           aria-label={t("octoAria")}
           tabIndex={0}
           onClick={onOcto}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onOcto();
+            }
+          }}
         >
           <div className={phase === "summoning" ? "octo-grow" : ""}>
             <div
@@ -418,44 +439,20 @@ export default function OracleClient() {
           </div>
         </div>
 
-        {/* 소환 중: 넓은 반지름에서 문어 중심으로 수렴하는 파티클.
-            STAGE의 직접 자식(형제)이라 문어 transform(흔들림/grow)의 영향을 받지 않는다. */}
-        {phase === "summoning" && (
-          <div
-            className="pointer-events-none absolute inset-0 -z-10 overflow-visible"
-            aria-hidden="true"
-          >
-            {SUMMON_PARTICLES.map((p, i) => (
-              <span
-                key={i}
-                className="particle"
-                style={
-                  {
-                    "--dx": `${p.dx}px`,
-                    "--dy": `${p.dy}px`,
-                    animationDelay: `${p.delay}s`,
-                    animationDuration: `${p.duration}s`,
-                  } as CSSProperties
-                }
-              />
-            ))}
-          </div>
-        )}
+        {/* 소환 중: 넓은 반지름에서 문어 중심으로 끈적하게 뭉치며 수렴하는
+            SVG gooey 파티클. STAGE의 직접 자식(형제)이라 문어 transform
+            (흔들림/grow)의 영향을 받지 않는다. */}
+        {phase === "summoning" && <GooParticles />}
       </div>
 
       {phase === "idle" && (
-        <>
-          <p className="txt-muted max-w-md text-center text-sm leading-relaxed">
-            {tHero("subtitle")}
-          </p>
-          <button
-            type="button"
-            onClick={onOcto}
-            className="btn-accent animate-glow-pulse rounded-2xl px-12 py-5 text-xl font-bold shadow-[0_0_40px_rgba(249,115,22,0.45)] transition-transform active:scale-95"
-          >
-            🔮 {tHero("cta")}
-          </button>
-        </>
+        // 첫인상 미니멀 — 문어만 크게. 은은한 힌트 한 줄이 마운트 1.2s 후 페이드인.
+        <p
+          className="txt-faint animate-fade-up text-center text-sm"
+          style={{ animationDelay: "1.2s" }}
+        >
+          {t("hint.tapOcto")}
+        </p>
       )}
 
       {phase === "summoning" && (
@@ -469,8 +466,67 @@ export default function OracleClient() {
         </p>
       )}
 
+      {phase === "mystery" && result && (
+        <div className="flex w-full max-w-sm flex-col items-center gap-4">
+          {/* 문어 → 카드 유도 화살표 (그려진 뒤 위아래 bob) */}
+          <GuideArrow />
+
+          {/* 미스터리 카드 — 오직 가려진 LONG/SHORT 만. 쓸어서 엿보고 눌러 펼친다. */}
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={t("hint.sweepCard")}
+            onClick={() => {
+              setPhase("revealed");
+              playSound("click");
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setPhase("revealed");
+                playSound("click");
+              }
+            }}
+            className="surface-solid border-app reveal-unfold flex min-h-[360px] w-full cursor-pointer items-center justify-center rounded-3xl border p-8"
+          >
+            <SpotlightText
+              text={result.side}
+              brightColor={
+                result.side === "LONG" ? "var(--long)" : "var(--short)"
+              }
+              dimColor="color-mix(in srgb, var(--fg-faint) 18%, transparent)"
+              maskSize={170}
+              className="text-center text-7xl font-black tracking-tight sm:text-8xl"
+            />
+          </div>
+
+          <p className="txt-faint text-center text-xs">{t("hint.sweepCard")}</p>
+        </div>
+      )}
+
       {phase === "revealed" && result && (
         <div className="flex w-full max-w-sm flex-col items-center gap-5">
+          {/* 리빙 글로우 아지랑이용 필터 — 같은 문서 내 defs 필요(revealed 때만 렌더).
+              glow-flash 가 filter: blur() url(#tako-heat) 로 참조한다. */}
+          <svg
+            width={0}
+            height={0}
+            aria-hidden="true"
+            style={{ position: "absolute" }}
+          >
+            <defs>
+              <filter id="tako-heat">
+                <feTurbulence
+                  type="fractalNoise"
+                  baseFrequency="0.012 0.03"
+                  numOctaves={2}
+                  result="n"
+                />
+                <feDisplacementMap in="SourceGraphic" in2="n" scale={14} />
+              </filter>
+            </defs>
+          </svg>
+
           {/* 리빙 순간: 문어 아래 glow 플래시 → 결과 카드가 펼쳐지며 등장 */}
           <div className="relative w-full">
             {/* 순간 glow 하이라이트 플래시 (문어 바로 아래, 1회) */}

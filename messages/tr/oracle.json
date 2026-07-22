@@ -1,5 +1,9 @@
 {
   "oracle": {
+    "hint": {
+      "tapOcto": "Kehanet için ahtapota dokun",
+      "sweepCard": "Bakmak için kartı süpür — açmak için dokun"
+    },
     "octoAria": "Kahin Ahtapot Tako",
     "luckBadge": "Bugün tam şans modu 🎲",
     "disclaimerCard": "Bu sonuç eğlence amaçlı bir içeriktir, yatırım tavsiyesi veya önerisi değildir. Tüm yatırım kararları ve sorumluluğu sana aittir.",

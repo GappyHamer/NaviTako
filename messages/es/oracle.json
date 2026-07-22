@@ -1,5 +1,9 @@
 {
   "oracle": {
+    "hint": {
+      "tapOcto": "Toca el pulpo para tu oráculo",
+      "sweepCard": "Desliza sobre la carta para espiar — toca para revelar"
+    },
     "octoAria": "El pulpo oráculo Tako",
     "luckBadge": "Hoy es modo pura suerte 🎲",
     "disclaimerCard": "Este resultado es solo contenido de entretenimiento, no es una recomendación ni asesoría de inversión. Toda decisión de inversión y su responsabilidad son exclusivamente tuyas.",

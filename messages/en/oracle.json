@@ -1,5 +1,9 @@
 {
   "oracle": {
+    "hint": {
+      "tapOcto": "Tap the octopus for your call",
+      "sweepCard": "Sweep the card to peek — tap to reveal"
+    },
     "octoAria": "Tako the oracle octopus",
     "luckBadge": "Pure luck mode today 🎲",
     "disclaimerCard": "This result is entertainment content, not investment advice or a recommendation. Every decision and its consequences are yours alone.",

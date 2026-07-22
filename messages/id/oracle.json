@@ -1,5 +1,9 @@
 {
   "oracle": {
+    "hint": {
+      "tapOcto": "Ketuk gurita untuk ramalanmu",
+      "sweepCard": "Usap kartu untuk mengintip — ketuk untuk membuka"
+    },
     "octoAria": "Gurita Peramal Tako",
     "luckBadge": "Hari ini mode hoki murni 🎲",
     "disclaimerCard": "Hasil ini adalah konten hiburan, bukan ajakan atau nasihat investasi. Semua keputusan investasi dan tanggung jawabnya ada di tanganmu sendiri.",

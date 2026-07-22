@@ -1,5 +1,9 @@
 {
   "oracle": {
+    "hint": {
+      "tapOcto": "Toque no polvo para receber seu oráculo",
+      "sweepCard": "Deslize sobre a carta para espiar — toque para revelar"
+    },
     "octoAria": "Polvo oráculo Tako",
     "luckBadge": "Hoje é modo sorte pura 🎲",
     "disclaimerCard": "Este resultado é apenas conteúdo de entretenimento, não é recomendação nem consultoria de investimento. Toda decisão de investimento e sua responsabilidade são exclusivamente suas.",
