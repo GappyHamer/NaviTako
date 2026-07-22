@@ -43,7 +43,7 @@ export default async function GuidePage({
           <li key={guide.slug}>
             <Link
               href={`/guide/${guide.slug}`}
-              className="surface block rounded-2xl p-5 transition-opacity hover:opacity-80"
+              className="surface press-spring block rounded-2xl p-5 transition-opacity hover:opacity-80"
             >
               <div className="flex items-baseline gap-3">
                 <span className="txt-accent text-sm font-bold">

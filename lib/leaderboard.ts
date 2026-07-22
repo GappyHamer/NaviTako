@@ -479,11 +479,93 @@ async function statsFor(userId: string, key: LbKey): Promise<{ hits: number; tot
   };
 }
 
+/* ---------------- 더미 플레이어 (연결됐지만 항목이 적을 때 리더보드를 붐비게) ----------------
+ *
+ * 실제 항목이 TOP_N 보다 적으면 결정적 더미로 채운다. 시드는 `KST날짜|key|sort` 라
+ * 하루 동안 순위가 고정되고 자정마다 조금씩 바뀐다(살아있는 느낌).
+ * 정산/기록/프로필 로직은 건드리지 않고 오직 조회 시점에서만 합성한다. */
+
+const DUMMY_NICKS = [
+  "청산각조심", "존버왕", "무기한홀더", "달까지간다", "SatoshiJr",
+  "moonboi", "김대리코인", "익절장인", "물타기달인", "롱만치는남자",
+  "숏은신앙", "도지홀릭", "레버리지금지", "코인은못참지", "TetherLover",
+  "반토막전문가", "고점매수봇", "저점판독기", "패닉셀러", "다이아몬드손",
+  "휴먼지표", "역추세매매", "청산라이브", "원화채굴러", "비트버스기사",
+  "불장기원", "곰돌이숏", "김치프리미엄", "스캠판독기", "횡보지옥",
+  "우상향믿음", "코린이탈출", "롱숏양방", "존버는승리", "신용불량코인러",
+  "떡상기원제", "패닉바이어",
+];
+
+/** FNV-1a 32bit 해시 → 결정적 시드 */
+function fnv1a(str: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
+/** mulberry32 — 시드 기반 결정적 PRNG (0~1) */
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+type Row = {
+  nick: string;
+  pic: string;
+  hits: number;
+  total: number;
+  streak: number;
+  isMe: boolean;
+  id?: string; // 실제 유저만 보유 (더미는 undefined)
+};
+
+/** 정렬 기준값: acc=적중률(0~1), streak=연속 */
+function metricOf(sort: LbSort, r: { hits: number; total: number; streak: number }): number {
+  return sort === "streak" ? r.streak : r.total > 0 ? r.hits / r.total : 0;
+}
+
+/** 오늘(KST) 날짜 키 — 시드에 넣어 하루 고정, 자정마다 변화 */
+function kstDateKey(): string {
+  return new Date(Date.now() + KST).toISOString().slice(0, 10);
+}
+
+/** count 명의 결정적 더미 행 생성 (닉네임 중복 없음) */
+function makeDummies(key: LbKey, sort: LbSort, count: number): Row[] {
+  if (count <= 0) return [];
+  const rand = mulberry32(fnv1a(`${kstDateKey()}|${key}|${sort}`));
+  const pool = [...DUMMY_NICKS];
+  // Fisher–Yates (결정적) — 시드가 같으면 매번 같은 순서
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const n = Math.min(count, pool.length);
+  const rows: Row[] = [];
+  for (let i = 0; i < n; i++) {
+    const total = 3 + Math.floor(rand() * 38); // 3~40
+    const acc = 0.42 + rand() * 0.26; // 42%~68%
+    const hits = Math.round(total * acc);
+    // streak: 대부분 0~4, 소수(약 20%)만 6~9 로 상위권 느낌
+    const streak = rand() < 0.2 ? 6 + Math.floor(rand() * 4) : Math.floor(rand() * 4);
+    rows.push({ nick: pool[i], pic: "", hits, total, streak, isMe: false });
+  }
+  return rows;
+}
+
 export async function getLeaderboard(
   key: LbKey,
   sort: LbSort,
   meUserId?: string
 ): Promise<LeaderboardPayload> {
+  // Redis 미연결 시에는 더미 없이 기존 동작(빈 보드) 유지
   if (!redis) return { connected: false, key, sort, top: [], me: null };
   await settleAll(40);
 
@@ -494,11 +576,12 @@ export async function getLeaderboard(
     ids = [];
   }
 
-  const top: LbEntry[] = [];
+  // 실제 유저 행 (아직 순위 미부여)
+  const realRows: Row[] = [];
   for (let i = 0; i < ids.length; i++) {
     const s = await statsFor(ids[i], key);
-    top.push({
-      rank: i + 1,
+    realRows.push({
+      id: ids[i],
       nick: s.nick,
       pic: s.pic,
       hits: s.hits,
@@ -508,24 +591,59 @@ export async function getLeaderboard(
     });
   }
 
+  // 실제 항목이 TOP_N 보다 적으면 부족한 만큼만 더미로 채운다.
+  // (부족분만 생성 → 실제 유저는 절대 밀려나지 않고 성적대로 섞인다)
+  const dummies = makeDummies(key, sort, TOP_N - realRows.length);
+
+  const merged = [...realRows, ...dummies].sort((a, b) => {
+    const dm = metricOf(sort, b) - metricOf(sort, a);
+    if (dm !== 0) return dm;
+    if (b.streak !== a.streak) return b.streak - a.streak;
+    if (b.total !== a.total) return b.total - a.total;
+    return fnv1a(b.nick) - fnv1a(a.nick); // 결정적 타이브레이크
+  });
+
+  const top: LbEntry[] = merged.slice(0, TOP_N).map((r, i) => ({
+    rank: i + 1,
+    nick: r.nick,
+    pic: r.pic,
+    hits: r.hits,
+    total: r.total,
+    streak: r.streak,
+    isMe: r.isMe,
+  }));
+
+  // me: 실제 데이터 기준. rank 는 병합 목록에서의 위치.
   let me: LbEntry | null = null;
   if (meUserId) {
-    try {
-      const rank = await redis.zrevrank(kLb(key, sort), meUserId);
-      const s = await statsFor(meUserId, key);
-      if (s.total > 0 || rank !== null) {
-        me = {
-          rank: rank === null ? 0 : rank + 1,
-          nick: s.nick,
-          pic: s.pic,
-          hits: s.hits,
-          total: s.total,
-          streak: s.streak,
-          isMe: true,
-        };
+    const inTop = top.find((e) => e.isMe);
+    if (inTop) {
+      me = { ...inTop };
+    } else {
+      // 병합 top 밖(예: 실제 유저가 TOP_N 이상이라 더미 미투입) → 실제 랭크 조회.
+      // 병합 목록에 없으면 자기보다 metric 좋은 항목 수 + 1 로 근사.
+      try {
+        const s = await statsFor(meUserId, key);
+        const rank = await redis.zrevrank(kLb(key, sort), meUserId);
+        if (s.total > 0 || rank !== null) {
+          const meMetric = metricOf(sort, s);
+          const betterDummies = dummies.filter(
+            (d) => metricOf(sort, d) > meMetric
+          ).length;
+          const base = rank === null ? merged.length + 1 : rank + 1;
+          me = {
+            rank: base + betterDummies,
+            nick: s.nick,
+            pic: s.pic,
+            hits: s.hits,
+            total: s.total,
+            streak: s.streak,
+            isMe: true,
+          };
+        }
+      } catch {
+        me = null;
       }
-    } catch {
-      me = null;
     }
   }
 

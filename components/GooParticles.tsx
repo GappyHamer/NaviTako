@@ -24,15 +24,24 @@ const GOO_PARTICLES = Array.from({ length: 16 }, (_, i) => {
 export default function GooParticles() {
   return (
     <div
-      className="pointer-events-none absolute inset-0 -z-10 grid place-items-center overflow-visible"
+      className="pointer-events-none absolute inset-0 -z-10 overflow-visible"
       aria-hidden="true"
     >
+      {/* grid 중앙정렬은 암시적 트랙이 svg 크기(800px)로 늘어나 좌상단 기준이 됨 →
+          절대배치 + 음수 마진으로 svg 중심을 컨테이너(문어) 중심에 고정 */}
       <svg
         width={800}
         height={800}
         viewBox="-400 -400 800 800"
         className="overflow-visible"
-        style={{ maxWidth: "none" }}
+        style={{
+          maxWidth: "none",
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          marginLeft: -400,
+          marginTop: -400,
+        }}
       >
         <defs>
           {/* filterUnits=userSpaceOnUse 고정 영역 → 매 프레임 bbox 재계산 방지,

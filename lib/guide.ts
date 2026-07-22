@@ -108,7 +108,16 @@ export function getGuideArticle(
   const raw = fs.readFileSync(filePath, "utf8");
   const { data, body } = parseFrontmatter(raw);
   const parts = splitAtMiddleHeading(body.trim());
-  const htmlParts = parts.map((part) => marked.parse(part) as string);
+  let htmlParts = parts.map((part) => marked.parse(part) as string);
+
+  // 본문 내부 링크는 ko 기준 루트 상대(`/guide/...`, `/market`)라 비-ko 로케일에서
+  // 클릭 시 한국어 페이지로 이탈한다 → 현재 로케일 프리픽스를 붙인다.
+  // (?!/) 로 프로토콜 상대(`//`) 제외, (?!{locale}/) 로 이미 프리픽스된 링크 중복 방지.
+  // 외부 http 링크(href="h...)·앵커(href="#...)는 `href="/` 로 시작하지 않아 자동 제외.
+  if (locale !== DEFAULT_LOCALE) {
+    const re = new RegExp(`href="/(?!/)(?!${locale}/)`, "g");
+    htmlParts = htmlParts.map((h) => h.replace(re, `href="/${locale}/`));
+  }
 
   return {
     slug,

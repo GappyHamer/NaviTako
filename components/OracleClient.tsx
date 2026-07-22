@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import { useLocale, useMessages, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
@@ -181,8 +188,16 @@ export default function OracleClient() {
   const [pools, setPools] = useState<KeywordPools>(SEED_POOLS);
   const [drawCount, setDrawCount] = useState(0); // 오늘 예언 횟수 (쿨다운 에스컬레이션)
   const [skipCount, setSkipCount] = useState(0); // 오늘 '지금 바로 받기' 사용 횟수
+  const [ripple, setRipple] = useState<{ x: number; y: number } | null>(null); // 카드 리빙 확산 중심(카드 로컬 px)
   const timersRef = useRef<{ interval?: ReturnType<typeof setInterval> }>({});
   const mountedRef = useRef(true);
+
+  /** mystery 카드 클릭 지점(카드 로컬 좌표)에서 내용이 퍼지며 revealed 로 전환 */
+  const reveal = useCallback((rx: number, ry: number) => {
+    setRipple({ x: rx, y: ry });
+    setPhase("revealed");
+    playSound("click");
+  }, []);
 
   // 마운트 시 이전 결과·쿨다운 복원 (없으면 idle 유지 → SSR과 일치)
   useEffect(() => {
@@ -466,112 +481,145 @@ export default function OracleClient() {
         </p>
       )}
 
-      {phase === "mystery" && result && (
-        <div className="flex w-full max-w-sm flex-col items-center gap-4">
-          {/* 문어 → 카드 유도 화살표 (그려진 뒤 위아래 bob) */}
-          <GuideArrow />
-
-          {/* 미스터리 카드 — 오직 가려진 LONG/SHORT 만. 쓸어서 엿보고 눌러 펼친다. */}
-          <div
-            role="button"
-            tabIndex={0}
-            aria-label={t("hint.sweepCard")}
-            onClick={() => {
-              setPhase("revealed");
-              playSound("click");
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setPhase("revealed");
-                playSound("click");
-              }
-            }}
-            className="surface-solid border-app reveal-unfold flex min-h-[360px] w-full cursor-pointer items-center justify-center rounded-3xl border p-8"
-          >
-            <SpotlightText
-              text={result.side}
-              brightColor={
-                result.side === "LONG" ? "var(--long)" : "var(--short)"
-              }
-              dimColor="color-mix(in srgb, var(--fg-faint) 18%, transparent)"
-              maskSize={170}
-              className="text-center text-7xl font-black tracking-tight sm:text-8xl"
-            />
-          </div>
-
-          <p className="txt-faint text-center text-xs">{t("hint.sweepCard")}</p>
-        </div>
-      )}
-
-      {phase === "revealed" && result && (
+      {(phase === "mystery" || phase === "revealed") && result && (
         <div className="flex w-full max-w-sm flex-col items-center gap-5">
+          {/* mystery: 문어 → 카드 유도 화살표 (그려진 뒤 위아래 bob) */}
+          {phase === "mystery" && <GuideArrow />}
+
           {/* 리빙 글로우 아지랑이용 필터 — 같은 문서 내 defs 필요(revealed 때만 렌더).
               glow-flash 가 filter: blur() url(#tako-heat) 로 참조한다. */}
-          <svg
-            width={0}
-            height={0}
-            aria-hidden="true"
-            style={{ position: "absolute" }}
-          >
-            <defs>
-              <filter id="tako-heat">
-                <feTurbulence
-                  type="fractalNoise"
-                  baseFrequency="0.012 0.03"
-                  numOctaves={2}
-                  result="n"
-                />
-                <feDisplacementMap in="SourceGraphic" in2="n" scale={14} />
-              </filter>
-            </defs>
-          </svg>
+          {phase === "revealed" && (
+            <svg
+              width={0}
+              height={0}
+              aria-hidden="true"
+              style={{ position: "absolute" }}
+            >
+              <defs>
+                <filter id="tako-heat">
+                  <feTurbulence
+                    type="fractalNoise"
+                    baseFrequency="0.012 0.03"
+                    numOctaves={2}
+                    result="n"
+                  />
+                  <feDisplacementMap in="SourceGraphic" in2="n" scale={14} />
+                </filter>
+              </defs>
+            </svg>
+          )}
 
-          {/* 리빙 순간: 문어 아래 glow 플래시 → 결과 카드가 펼쳐지며 등장 */}
+          {/* 리빙 순간: 카드 아래 glow 플래시(revealed 1회) + 단일 카드 유지.
+              카드는 mystery 진입 때 한 번만 reveal-unfold 로 등장하고, revealed
+              전환 시 리마운트 없이(같은 위치/타입 → DOM 유지) 내부 레이어만 교체된다. */}
           <div className="relative w-full">
-            {/* 순간 glow 하이라이트 플래시 (문어 바로 아래, 1회) */}
-            <span className="glow-flash" aria-hidden="true" />
+            {phase === "revealed" && (
+              <span className="glow-flash" aria-hidden="true" />
+            )}
 
-            {/* 결과 카드 — 펼쳐지며 등장 (unfold) */}
             <div
-              className={`reveal-unfold flex min-h-[360px] flex-col items-center justify-center gap-4 rounded-3xl border p-8 ${
-                result.side === "LONG"
-                  ? "border-emerald-500/40 bg-emerald-500/10"
-                  : "border-red-500/40 bg-red-500/10"
+              role={phase === "mystery" ? "button" : undefined}
+              tabIndex={phase === "mystery" ? 0 : undefined}
+              aria-label={phase === "mystery" ? t("hint.sweepCard") : undefined}
+              onClick={
+                phase === "mystery"
+                  ? (e) => {
+                      const r = e.currentTarget.getBoundingClientRect();
+                      reveal(e.clientX - r.left, e.clientY - r.top);
+                    }
+                  : undefined
+              }
+              onKeyDown={
+                phase === "mystery"
+                  ? (e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        const r = e.currentTarget.getBoundingClientRect();
+                        reveal(r.width / 2, r.height / 2);
+                      }
+                    }
+                  : undefined
+              }
+              className={`reveal-unfold relative min-h-[360px] w-full overflow-hidden rounded-3xl border p-8 transition-colors duration-500 ${
+                phase === "revealed"
+                  ? result.side === "LONG"
+                    ? "border-emerald-500/40 bg-emerald-500/10"
+                    : "border-red-500/40 bg-red-500/10"
+                  : "surface-solid border-app cursor-pointer"
               }`}
             >
-              {result.luckMode && (
-                <span className="surface txt-warn rounded-full px-3 py-1 text-xs font-medium">
-                  {t("luckBadge")}
-                </span>
-              )}
-              <p
-                className={`text-7xl font-black tracking-tight sm:text-8xl ${
-                  result.side === "LONG" ? "txt-long" : "txt-short"
+              {/* spotlight 레이어 — 가려진 LONG/SHORT. revealed 되면 부드럽게 사라짐. */}
+              <div
+                className={`absolute inset-0 flex items-center justify-center px-8 transition-opacity duration-500 ${
+                  phase === "revealed"
+                    ? "pointer-events-none opacity-0"
+                    : "opacity-100"
                 }`}
               >
-                {result.side}
-              </p>
-              <p className="txt-strong text-center text-xl font-bold tracking-wide">
-                {result.ment}
-              </p>
-              <p className="txt-faint mt-2 text-center text-[11px] leading-relaxed">
-                {tDisc("card")}
-              </p>
-              {result.at && (
-                <p className="txt-faint text-center text-[11px] tabular-nums">
-                  🕐{" "}
-                  {new Date(result.at).toLocaleString(locale, {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  })}
-                </p>
+                <SpotlightText
+                  text={result.side}
+                  brightColor={
+                    result.side === "LONG" ? "var(--long)" : "var(--short)"
+                  }
+                  dimColor="transparent"
+                  maskSize={170}
+                  className="text-center text-7xl font-black tracking-tight sm:text-8xl"
+                />
+              </div>
+
+              {/* full 레이어 — revealed 때 클릭 지점에서 원형(ripple)으로 확산 공개 */}
+              {phase === "revealed" && (
+                <div
+                  className="card-ripple absolute inset-0 flex flex-col items-center justify-center gap-4 p-8"
+                  style={
+                    {
+                      "--rx": `${ripple?.x ?? 0}px`,
+                      "--ry": `${ripple?.y ?? 0}px`,
+                    } as CSSProperties
+                  }
+                >
+                  {result.luckMode && (
+                    <span className="surface txt-warn rounded-full px-3 py-1 text-xs font-medium">
+                      {t("luckBadge")}
+                    </span>
+                  )}
+                  <p
+                    className={`text-7xl font-black tracking-tight sm:text-8xl ${
+                      result.side === "LONG" ? "txt-long" : "txt-short"
+                    }`}
+                  >
+                    {result.side}
+                  </p>
+                  <p className="txt-strong text-center text-xl font-bold tracking-wide">
+                    {result.ment}
+                  </p>
+                  <p className="txt-faint mt-2 text-center text-[11px] leading-relaxed">
+                    {tDisc("card")}
+                  </p>
+                  {result.at && (
+                    <p className="txt-faint text-center text-[11px] tabular-nums">
+                      🕐{" "}
+                      {new Date(result.at).toLocaleString(locale, {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           </div>
 
-          {/* 카드 밖 액션 영역 (플립 대상 아님) */}
-          {locked ? (
+          {/* mystery: 카드 아래 안내 문구 */}
+          {phase === "mystery" && (
+            <p className="txt-faint text-center text-xs">
+              {t("hint.sweepCard")}
+            </p>
+          )}
+
+          {/* 카드 밖 액션 영역 (revealed 에서만) */}
+          {phase === "revealed" &&
+            (locked ? (
             <div className="flex w-full flex-col items-center gap-3">
               <p className="txt-muted text-center text-xs">
                 {t("cooldown.until")}{" "}
@@ -620,15 +668,17 @@ export default function OracleClient() {
                 {copied ? `✅ ${t("copied")}` : `📤 ${t("share")}`}
               </button>
             </div>
-          )}
+            ))}
 
-          {/* 예언하기 페이지로 유도 (내가 직접 예언 + 리더보드) */}
-          <Link
-            href="/predict"
-            className="border-app surface txt flex w-full items-center justify-center gap-1.5 rounded-xl border px-5 py-3 text-sm font-semibold transition-colors hover:opacity-80"
-          >
-            🔮 {t("predictSelf")} →
-          </Link>
+          {/* 예언하기 페이지로 유도 (내가 직접 예언 + 리더보드) — revealed 에서만 */}
+          {phase === "revealed" && (
+            <Link
+              href="/predict"
+              className="border-app surface txt flex w-full items-center justify-center gap-1.5 rounded-xl border px-5 py-3 text-sm font-semibold transition-colors hover:opacity-80"
+            >
+              🔮 {t("predictSelf")} →
+            </Link>
+          )}
         </div>
       )}
 

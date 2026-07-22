@@ -53,7 +53,7 @@ export default function Header() {
                   <Link
                     href={tab.href}
                     aria-current={isActive(tab.href) ? "page" : undefined}
-                    className={`rounded-full px-3 py-1.5 transition-colors ${
+                    className={`press-spring inline-block rounded-full px-3 py-1.5 transition-colors ${
                       isActive(tab.href)
                         ? "txt-accent font-semibold"
                         : "txt-muted hover:opacity-80"
@@ -95,7 +95,7 @@ export default function Header() {
                   href={tab.href}
                   aria-current={isActive(tab.href) ? "page" : undefined}
                   onClick={() => setOpen(false)}
-                  className={`block rounded-lg px-3 py-2.5 transition-colors ${
+                  className={`press-spring block rounded-lg px-3 py-2.5 transition-colors ${
                     isActive(tab.href)
                       ? "txt-accent surface font-semibold"
                       : "txt-muted hover:opacity-80"
