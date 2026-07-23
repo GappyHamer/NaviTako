@@ -440,6 +440,21 @@ body {
 
 /* ---------- mystery 유도 화살표 (GuideArrow) ---------- */
 
+/* 화살표 슬롯 — 리빙(ripple) 동안 카드가 위로 튀지 않게 공간을 유지했다가,
+   ripple(0.6s)이 끝난 뒤 부드럽게 접힌다(1회성 높이 전환). */
+.arrow-slot {
+  height: 64px;
+  opacity: 1;
+  overflow: hidden;
+  transition:
+    height 0.35s var(--ease-out) 0.6s,
+    opacity 0.25s ease 0.45s;
+}
+.arrow-slot-collapsed {
+  height: 0;
+  opacity: 0;
+}
+
 /* path 가 한 번 그려짐(stroke-dashoffset) → 이후 svg 전체가 위아래 bob(transform) */
 @keyframes arrow-draw {
   from {

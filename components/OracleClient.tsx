@@ -483,8 +483,17 @@ export default function OracleClient() {
 
       {(phase === "mystery" || phase === "revealed") && result && (
         <div className="flex w-full max-w-sm flex-col items-center gap-5">
-          {/* mystery: 문어 → 카드 유도 화살표 (그려진 뒤 위아래 bob) */}
-          {phase === "mystery" && <GuideArrow />}
+          {/* mystery: 문어 → 카드 유도 화살표 (그려진 뒤 위아래 bob).
+              슬롯이 리빙 순간에도 공간을 유지 → 카드가 튀지 않고,
+              ripple 이 끝난 뒤 부드럽게 접힌다. */}
+          <div
+            aria-hidden="true"
+            className={`arrow-slot flex items-start justify-center ${
+              phase === "revealed" ? "arrow-slot-collapsed" : ""
+            }`}
+          >
+            {phase === "mystery" && <GuideArrow />}
+          </div>
 
           {/* 리빙 글로우 아지랑이용 필터 — 같은 문서 내 defs 필요(revealed 때만 렌더).
               glow-flash 가 filter: blur() url(#tako-heat) 로 참조한다. */}
@@ -548,26 +557,59 @@ export default function OracleClient() {
                   : "surface-solid border-app cursor-pointer"
               }`}
             >
-              {/* spotlight 레이어 — 가려진 LONG/SHORT. revealed 되면 부드럽게 사라짐. */}
-              <div
-                className={`absolute inset-0 flex items-center justify-center px-8 transition-opacity duration-500 ${
-                  phase === "revealed"
-                    ? "pointer-events-none opacity-0"
-                    : "opacity-100"
-                }`}
-              >
-                <SpotlightText
-                  text={result.side}
-                  brightColor={
-                    result.side === "LONG" ? "var(--long)" : "var(--short)"
-                  }
-                  dimColor="transparent"
-                  maskSize={170}
-                  className="text-center text-7xl font-black tracking-tight sm:text-8xl"
-                />
+              {/* ── 2겹 동일 레이아웃 트릭 ──
+                  ghost(아래·in-flow)와 full(위·absolute)이 픽셀 단위로 같은 컬럼을
+                  렌더한다. ghost 는 side 자리만 SpotlightText 로 보여주고 나머지는
+                  투명(공간만 차지). full 은 클릭 지점에서 ripple 로 공개된다.
+                  → LONG/SHORT 텍스트가 클릭 전후 위치·스케일 그대로 유지. */}
+
+              {/* ghost 레이어 — 카드 높이를 결정. side 만 스포트라이트로 노출 */}
+              <div className="flex min-h-[296px] w-full flex-col items-center justify-center gap-4">
+                {result.luckMode && (
+                  <span
+                    aria-hidden="true"
+                    className="surface txt-warn rounded-full px-3 py-1 text-xs font-medium opacity-0"
+                  >
+                    {t("luckBadge")}
+                  </span>
+                )}
+                <div className="w-full text-center text-7xl font-black tracking-tight sm:text-8xl">
+                  <SpotlightText
+                    text={result.side}
+                    brightColor={
+                      result.side === "LONG" ? "var(--long)" : "var(--short)"
+                    }
+                    dimColor="transparent"
+                    maskSize={170}
+                  />
+                </div>
+                <p
+                  aria-hidden="true"
+                  className="txt-strong text-center text-xl font-bold tracking-wide opacity-0"
+                >
+                  {result.ment}
+                </p>
+                <p
+                  aria-hidden="true"
+                  className="txt-faint mt-2 text-center text-[11px] leading-relaxed opacity-0"
+                >
+                  {tDisc("card")}
+                </p>
+                {result.at && (
+                  <p
+                    aria-hidden="true"
+                    className="txt-faint text-center text-[11px] tabular-nums opacity-0"
+                  >
+                    🕐{" "}
+                    {new Date(result.at).toLocaleString(locale, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </p>
+                )}
               </div>
 
-              {/* full 레이어 — revealed 때 클릭 지점에서 원형(ripple)으로 확산 공개 */}
+              {/* full 레이어 — ghost 와 동일 컬럼, 클릭 지점에서 원형(ripple) 확산 공개 */}
               {phase === "revealed" && (
                 <div
                   className="card-ripple absolute inset-0 flex flex-col items-center justify-center gap-4 p-8"
@@ -584,7 +626,7 @@ export default function OracleClient() {
                     </span>
                   )}
                   <p
-                    className={`text-7xl font-black tracking-tight sm:text-8xl ${
+                    className={`w-full text-center text-7xl font-black tracking-tight sm:text-8xl ${
                       result.side === "LONG" ? "txt-long" : "txt-short"
                     }`}
                   >
